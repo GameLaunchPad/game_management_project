@@ -43,7 +43,7 @@ struct CreateCPMaterialResponse {
 
 struct UpdateCPMaterialRequest {
     1: i64 MaterialID
-    2: CPMaterial CPMaterial
+    2: CPMaterial CpMaterial
     3: SubmitMode SubmitMode
 }
 

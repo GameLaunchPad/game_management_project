@@ -28,9 +28,10 @@ struct BriefGame {
     2: i64 CpID
     3: string GameName
     4: string GameIcon
-    5: i64 CreateTime
-    6: i64 UpdateTime
-    7: GameStatus GameStatus
+    5: string HeaderImage // 头图
+    6: i64 CreateTime
+    7: i64 UpdateTime
+    8: GameStatus GameStatus
 }
 
 enum GameStatus {
@@ -64,16 +65,17 @@ struct GameVersion {
     2: i64 GamVersionID
     3: string GameName
     4: string GameIcon
-    5: string GameIntroduction
-    6: list<string> GameIntroductionImages
-    7: list<GamePlatform> GamePlatforms
-    8: string PackageName // 包名
-    9: string DownloadURL // 下载链接
-    10: GameStatus GameStatus // 游戏状态
-    11: string ReviewComment
-    12: i64 ReviewTime
-    13: i64 CreateTime
-    14: i64 UpdateTime
+    5: string HeaderImage
+    6: string GameIntroduction
+    7: list<string> GameIntroductionImages
+    8: list<GamePlatform> GamePlatforms
+    9: string PackageName // 包名
+    10: string DownloadURL // 下载链接
+    11: GameStatus GameStatus // 游戏状态
+    12: string ReviewComment
+    13: i64 ReviewTime
+    14: i64 CreateTime
+    15: i64 UpdateTime
 }
 
 enum GamePlatform {
