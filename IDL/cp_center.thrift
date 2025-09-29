@@ -1,5 +1,7 @@
 namespace go cp_center
 
+include "common.thrift"
+
 struct CPMaterial {
     1: i64 MaterialID
     2: i64 CpID
@@ -28,15 +30,55 @@ enum SubmitMode {
     SubmitReview = 2
 }
 
-struct CreateCPMaterialsRequest {
+struct CreateCPMaterialRequest {
     1: CPMaterial CPMaterial
     2: SubmitMode SubmitMode
 }
 
 struct CreateCPMaterialResponse {
-    // 255: BaseResp BaseResp
+    1: i64 CpID
+    2: i64 MaterialID
+    255: common.BaseResp BaseResp
+}
+
+struct UpdateCPMaterialRequest {
+    1: i64 MaterialID
+    2: CPMaterial CPMaterial
+    3: SubmitMode SubmitMode
+}
+
+struct UpdateCPMaterialResponse {
+   255: common.BaseResp BaseResp
+}
+
+struct ReviewCPMaterialRequest {
+    1: i64 CpID
+    2: i64 MaterialID
+    3: ReviewResult review_result
+}
+
+enum ReviewResult {
+    Unset = 0
+    Pass = 1
+    Reject = 2
+}
+
+struct ReviewCPMaterialResponse {
+    255: common.BaseResp BaseResp
+}
+
+struct GetCPMaterialRequest {
+    1: i64 CpID
+}
+
+struct GetCPMaterialResponse {
+    1: CPMaterial CPMaterial
+    255: common.BaseResp BaseResp
 }
 
 service CpCenterService {
-
+    CreateCPMaterialResponse CreateCPMaterial (1: CreateCPMaterialRequest req) // 创建认证材料
+    UpdateCPMaterialResponse UpdateCPMaterial (1: UpdateCPMaterialRequest req) // 更新认证材料
+    ReviewCPMaterialResponse ReviewCPMaterial (1: ReviewCPMaterialRequest req) // 审核厂商材料
+    GetCPMaterialResponse GetCPMaterial(1: GetCPMaterialRequest req) // 获取厂商认证材料
 }

@@ -1,5 +1,7 @@
 namespace go game
 
+include "common.thrift"
+
 struct GetGameListRequest {
    1: optional GameListFilter Filter
    2: optional GameListSorter Sorter
@@ -18,7 +20,7 @@ struct GameListSorter {
 struct GetGameListResponse {
     1: list<BriefGame> GameList
     2: i32 TotalCount
-    //255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 struct BriefGame {
@@ -45,7 +47,7 @@ struct GetGameDetailRequest {
 
 struct GetGameDetailResponse {
     1: GameDetail GameDetail
-    // 255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 struct GameDetail {
@@ -95,7 +97,7 @@ struct CreateGameDetailRequest {
 
 struct CreateGameDetailResponse {
     1: i64 GameID
-    // 255: BaseResp base_resp
+    255: common.BaseResp BaseResp
 }
 
 
@@ -112,7 +114,7 @@ struct ReviewGameVersionRequest {
 }
 
 struct ReviewGameVersionResponse {
-    //255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 enum ReviewResult {
