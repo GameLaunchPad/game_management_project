@@ -110,7 +110,7 @@ enum SubmitMode {
 struct ReviewGameVersionRequest {
    1: i64 GameID
    2: i64 GameVersionID
-   3: ReviewResult review_result
+   3: ReviewResult ReviewResult
 }
 
 struct ReviewGameVersionResponse {
