@@ -7,7 +7,7 @@ struct CPMaterial {
     2: i64 CpID
     3: string CpIcon
     4: string CpName
-    5: list<string> VerificationImages
+    5: list<string> VerificationImages // 图片URI
     6: string BusinessLicenses
     7: string Website
     8: MaterialStatus Status
