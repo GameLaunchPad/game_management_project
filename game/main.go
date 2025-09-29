@@ -1,8 +1,9 @@
 package main
 
 import (
-	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game/gameservice"
 	"log"
+
+	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game/gameservice"
 )
 
 func main() {
