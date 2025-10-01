@@ -1,6 +1,6 @@
 CREATE TABLE `gp_game_version` (
- `id` bigint(20) unsigned NOT NULL COMMENT '游戏ID',
- `cp_id` bigint(20) unsigned NOT NULL COMMENT '厂商ID',
+ `id` bigint(20) unsigned NOT NULL COMMENT '版本ID',
+ `game_id` bigint(20) unsigned NOT NULL COMMENT '游戏ID',
  `game_name` varchar(1024) NOT NULL DEFAULT '' COMMENT '游戏名',
  `game_icon` varchar(512) NOT NULL DEFAULT '' COMMENT '游戏图片URI',
  `header_image` varchar(512) NOT NULL DEFAULT '' COMMENT '游戏头图URI',

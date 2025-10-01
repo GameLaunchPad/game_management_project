@@ -4,8 +4,8 @@ import "time"
 
 // 游戏版本信息
 type GpGameVersion struct {
-	Id                     uint64    `gorm:"column:id;type:bigint(20) unsigned;primary_key;comment:游戏ID" json:"id"`
-	CpId                   uint64    `gorm:"column:cp_id;type:bigint(20) unsigned;comment:厂商ID;NOT NULL" json:"cp_id"`
+	Id                     uint64    `gorm:"column:id;type:bigint(20) unsigned;primary_key;comment:版本ID" json:"id"`
+	GameId                 uint64    `gorm:"column:cp_id;type:bigint(20) unsigned;comment:游戏ID;NOT NULL" json:"game_id"`
 	GameName               string    `gorm:"column:game_name;type:varchar(1024);comment:游戏名;NOT NULL" json:"game_name"`
 	GameIcon               string    `gorm:"column:game_icon;type:varchar(512);comment:游戏图片URI;NOT NULL" json:"game_icon"`
 	HeaderImage            string    `gorm:"column:header_image;type:varchar(512);comment:游戏头图URI;NOT NULL" json:"header_image"`
