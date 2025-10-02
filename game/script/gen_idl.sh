@@ -1,1 +1,2 @@
 kitex -module github.com/GameLaunchPad/game_management_project -service game -type thrift  ../IDL/game.thrift
+kitex -module github.com/GameLaunchPad/game_management_project -service game -type thrift  ../IDL/cp_center.thrift
