@@ -1,0 +1,10 @@
+CREATE TABLE `gp_cp` (
+ `id` bigint(20) unsigned NOT NULL COMMENT 'cp_id',
+ `cp_name` varchar(512) NOT NULL DEFAULT '' COMMENT '厂商名字',
+ `newest_material_id` bigint(20) unsigned NOT NULL COMMENT '最新资质id',
+ `online_material_id` bigint(20) unsigned NOT NULL COMMENT '上线资质id',
+ `verify_status` int(11) unsigned NOT NULL COMMENT '0-未认证，1-已认证',
+ `create_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ `modify_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+ PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='厂商信息'
