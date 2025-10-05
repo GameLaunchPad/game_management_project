@@ -1,0 +1,20 @@
+CREATE TABLE `gp_game_version` (
+ `id` bigint(20) unsigned NOT NULL COMMENT '版本ID',
+ `game_id` bigint(20) unsigned NOT NULL COMMENT '游戏ID',
+ `game_name` varchar(1024) NOT NULL DEFAULT '' COMMENT '游戏名',
+ `game_icon` varchar(512) NOT NULL DEFAULT '' COMMENT '游戏图片URI',
+ `header_image` varchar(512) NOT NULL DEFAULT '' COMMENT '游戏头图URI',
+ `game_introduction` text COMMENT '游戏简介',
+ `game_introduction_images` text  COMMENT '游戏介绍图',
+  `platform` varchar(256) NOT NULL DEFAULT '' COMMENT '游戏推广平台 0-unset, 1-android, 2-ios, 3-web,可以支持多端配置，为Json数组',
+ `package_name` varchar(256) NOT NULL DEFAULT '' COMMENT '游戏包名（APP端使用）',
+ `download_url` text COMMENT '游戏下载链接',
+ `status` int(11) NOT NULL COMMENT '0-Unset, 1-草稿, 2-审核中, 3-已发布, 4-审核拒绝',
+ `review_time` bigint(20) NOT NULL DEFAULT 0 COMMENT '审核时间',
+ `operator` varchar(45) NOT NULL COMMENT '审核人',
+ `review_comment`text COMMENT '审核意见',
+ `create_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ `modify_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+ PRIMARY KEY (`id`),
+ KEY `idx_cp_id` (`game_id`)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='游戏版本信息'

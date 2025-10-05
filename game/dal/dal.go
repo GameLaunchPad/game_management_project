@@ -9,6 +9,7 @@ import (
 
 func InitClient(ctx context.Context) {
 	initIDGenerator(ctx)
+	initDB()
 }
 
 func initIDGenerator(ctx context.Context) {
