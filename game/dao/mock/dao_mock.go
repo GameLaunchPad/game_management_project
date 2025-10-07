@@ -64,6 +64,23 @@ func (mr *MockIGameDAOMockRecorder) CreateGameVersionAndUpdateGame(ctx, gameID, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGameVersionAndUpdateGame", reflect.TypeOf((*MockIGameDAO)(nil).CreateGameVersionAndUpdateGame), ctx, gameID, version)
 }
 
+// GetGameDetail mocks base method.
+func (m *MockIGameDAO) GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame, *ddl.GpGameVersion, *ddl.GpGameVersion, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGameDetail", ctx, gameID)
+	ret0, _ := ret[0].(*ddl.GpGame)
+	ret1, _ := ret[1].(*ddl.GpGameVersion)
+	ret2, _ := ret[2].(*ddl.GpGameVersion)
+	ret3, _ := ret[3].(error)
+	return ret0, ret1, ret2, ret3
+}
+
+// GetGameDetail indicates an expected call of GetGameDetail.
+func (mr *MockIGameDAOMockRecorder) GetGameDetail(ctx, gameID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGameDetail", reflect.TypeOf((*MockIGameDAO)(nil).GetGameDetail), ctx, gameID)
+}
+
 // GetGameList mocks base method.
 func (m *MockIGameDAO) GetGameList(ctx context.Context, filterText *string, pageNum, pageSize int) ([]*dao.GameWithVersionStatus, int64, error) {
 	m.ctrl.T.Helper()
