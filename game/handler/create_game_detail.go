@@ -8,6 +8,7 @@ import (
 	"github.com/GameLaunchPad/game_management_project/dao/ddl"
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/service"
 	"github.com/yitter/idgenerator-go/idgen"
 	"gorm.io/gorm"
 )
@@ -39,7 +40,7 @@ func handleCreateGame(ctx context.Context, req *game.CreateGameDetailRequest) (*
 	gameID := uint64(idgen.NextId())
 	versionID := uint64(idgen.NextId())
 
-	gameVersionDdl, err := ConvertGameVersionToDdl(reqVersion)
+	gameVersionDdl, err := service.ConvertGameVersionToDdl(reqVersion)
 	if err != nil {
 		return &game.CreateGameDetailResponse{
 			BaseResp: &common.BaseResp{Code: "400", Msg: "Invalid game version data: " + err.Error()},
@@ -74,7 +75,7 @@ func handleUpdateGame(ctx context.Context, req *game.CreateGameDetailRequest) (*
 	versionID := uint64(idgen.NextId())
 	reqVersion := req.GameDetail.GameVersion
 
-	gameVersionDdl, err := ConvertGameVersionToDdl(reqVersion)
+	gameVersionDdl, err := service.ConvertGameVersionToDdl(reqVersion)
 	if err != nil {
 		return &game.CreateGameDetailResponse{
 			BaseResp: &common.BaseResp{Code: "400", Msg: "Invalid game version data: " + err.Error()},
