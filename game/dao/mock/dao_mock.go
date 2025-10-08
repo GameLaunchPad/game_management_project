@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	dao "github.com/GameLaunchPad/game_management_project/dao"
 	ddl "github.com/GameLaunchPad/game_management_project/dao/ddl"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -61,4 +62,37 @@ func (m *MockIGameDAO) CreateGameVersionAndUpdateGame(ctx context.Context, gameI
 func (mr *MockIGameDAOMockRecorder) CreateGameVersionAndUpdateGame(ctx, gameID, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGameVersionAndUpdateGame", reflect.TypeOf((*MockIGameDAO)(nil).CreateGameVersionAndUpdateGame), ctx, gameID, version)
+}
+
+// GetGameDetail mocks base method.
+func (m *MockIGameDAO) GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame, *ddl.GpGameVersion, *ddl.GpGameVersion, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGameDetail", ctx, gameID)
+	ret0, _ := ret[0].(*ddl.GpGame)
+	ret1, _ := ret[1].(*ddl.GpGameVersion)
+	ret2, _ := ret[2].(*ddl.GpGameVersion)
+	ret3, _ := ret[3].(error)
+	return ret0, ret1, ret2, ret3
+}
+
+// GetGameDetail indicates an expected call of GetGameDetail.
+func (mr *MockIGameDAOMockRecorder) GetGameDetail(ctx, gameID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGameDetail", reflect.TypeOf((*MockIGameDAO)(nil).GetGameDetail), ctx, gameID)
+}
+
+// GetGameList mocks base method.
+func (m *MockIGameDAO) GetGameList(ctx context.Context, filterText *string, pageNum, pageSize int) ([]*dao.GameWithVersionStatus, int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGameList", ctx, filterText, pageNum, pageSize)
+	ret0, _ := ret[0].([]*dao.GameWithVersionStatus)
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetGameList indicates an expected call of GetGameList.
+func (mr *MockIGameDAOMockRecorder) GetGameList(ctx, filterText, pageNum, pageSize interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGameList", reflect.TypeOf((*MockIGameDAO)(nil).GetGameList), ctx, filterText, pageNum, pageSize)
 }

@@ -10,4 +10,6 @@ import (
 type IGameDAO interface {
 	CreateGame(ctx context.Context, game *ddl.GpGame, version *ddl.GpGameVersion) error
 	CreateGameVersionAndUpdateGame(ctx context.Context, gameID uint64, version *ddl.GpGameVersion) error
+	GetGameList(ctx context.Context, filterText *string, pageNum, pageSize int) ([]*GameWithVersionStatus, int64, error)
+	GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame, *ddl.GpGameVersion, *ddl.GpGameVersion, error)
 }
