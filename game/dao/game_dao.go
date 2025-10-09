@@ -97,3 +97,39 @@ func (d *gameDAO) GetGameList(ctx context.Context, filterText *string, pageNum, 
 
 	return results, total, nil
 }
+
+// GetGameDetail retrieves the main game info and its associated newest and online versions.
+func (d *gameDAO) GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame, *ddl.GpGameVersion, *ddl.GpGameVersion, error) {
+	var game ddl.GpGame
+	var newestVersion *ddl.GpGameVersion
+	var onlineVersion *ddl.GpGameVersion
+
+	// 1. get the main game info
+	if err := dal.DB.WithContext(ctx).First(&game, gameID).Error; err != nil {
+		// if record not found, return nils
+		return nil, nil, nil, err
+	}
+
+	// 2. get the newest game version
+	if game.NewestGameVersionId != 0 {
+		var nv ddl.GpGameVersion
+		if err := dal.DB.WithContext(ctx).First(&nv, game.NewestGameVersionId).Error; err == nil {
+			newestVersion = &nv
+		}
+	}
+
+	// 3. get the online game version
+	if game.OnlineGameVersionId != 0 {
+		// if the online version is the same as the newest version, reuse it
+		if newestVersion != nil && game.OnlineGameVersionId == newestVersion.Id {
+			onlineVersion = newestVersion
+		} else {
+			var ov ddl.GpGameVersion
+			if err := dal.DB.WithContext(ctx).First(&ov, game.OnlineGameVersionId).Error; err == nil {
+				onlineVersion = &ov
+			}
+		}
+	}
+
+	return &game, newestVersion, onlineVersion, nil
+}
