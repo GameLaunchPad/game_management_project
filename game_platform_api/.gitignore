@@ -34,14 +34,4 @@ _testmain.go
 /output
 *.local.yml
 dumped_hertz_remote_config.json
-/bin/                          # 项目根 bin/ 目录
-/build/                        # 常见构建输出目录
-*.exe                          # Windows 可执行文件
-*.dll
-*.dylib
-.cache/go-build/
-Thumbs.db
-coverage.out
-/output/
-/game/output/
-*.test
+		  
