@@ -54,7 +54,15 @@ struct UpdateCPMaterialResponse {
 struct ReviewCPMaterialRequest {
     1: i64 CpID
     2: i64 MaterialID
-    3: ReviewResult review_result
+    3: ReviewResult ReviewResult
+    4: ReviewRemark ReviewRemark
+}
+
+struct ReviewRemark {
+    1: string Remark
+    2: string Operator
+    3: i64 ReviewTime
+    4: string Meta
 }
 
 enum ReviewResult {

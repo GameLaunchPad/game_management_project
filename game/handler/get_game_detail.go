@@ -6,6 +6,7 @@ import (
 
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/service"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +32,7 @@ func GetGameDetail(ctx context.Context, req *game.GetGameDetailRequest) (*game.G
 	}
 
 	// transform to response format
-	gameDetail, err := ConvertDdlToDetailGame(gameDdl, newestVersionDdl, onlineVersionDdl)
+	gameDetail, err := service.ConvertDdlToDetailGame(gameDdl, newestVersionDdl, onlineVersionDdl)
 	if err != nil {
 		return &game.GetGameDetailResponse{
 			BaseResp: &common.BaseResp{Code: "500", Msg: "Failed to convert game data: " + err.Error()},

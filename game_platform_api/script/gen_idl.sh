@@ -1,0 +1,1 @@
+ hz update -idl ../IDL/game_platform_api.thrift
