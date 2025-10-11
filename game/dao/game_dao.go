@@ -2,9 +2,11 @@ package dao
 
 import (
 	"context"
+	"time"
 
 	"github.com/GameLaunchPad/game_management_project/dal"
 	"github.com/GameLaunchPad/game_management_project/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
 	"gorm.io/gorm"
 )
 
@@ -132,4 +134,38 @@ func (d *gameDAO) GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame
 	}
 
 	return &game, newestVersion, onlineVersion, nil
+}
+
+// ReviewGameVersion updates a game version's status and potentially the main game's online version.
+func (d *gameDAO) ReviewGameVersion(ctx context.Context, gameID, versionID uint64, newStatus int, reviewComment string) error {
+	return dal.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. update gp_game_version status and review info
+		updateData := map[string]interface{}{
+			"status":         newStatus,
+			"review_comment": reviewComment,
+			"review_time":    time.Now().Unix(),
+		}
+
+		result := tx.Model(&ddl.GpGameVersion{}).Where("id = ? AND game_id = ?", versionID, gameID).Updates(updateData)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			// if no rows were affected, it means either the version_id or game_id is invalid
+			return gorm.ErrRecordNotFound
+		}
+
+		// 2. if the new status is Published, update gp_game's online_game_version_id
+		if newStatus == int(game.GameStatus_Published) {
+			result = tx.Model(&ddl.GpGame{}).Where("id = ?", gameID).Update("online_game_version_id", versionID)
+			if result.Error != nil {
+				return result.Error
+			}
+			if result.RowsAffected == 0 {
+				return gorm.ErrRecordNotFound
+			}
+		}
+
+		return nil
+	})
 }

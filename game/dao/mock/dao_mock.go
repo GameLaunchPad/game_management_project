@@ -96,3 +96,17 @@ func (mr *MockIGameDAOMockRecorder) GetGameList(ctx, filterText, pageNum, pageSi
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGameList", reflect.TypeOf((*MockIGameDAO)(nil).GetGameList), ctx, filterText, pageNum, pageSize)
 }
+
+// ReviewGameVersion mocks base method.
+func (m *MockIGameDAO) ReviewGameVersion(ctx context.Context, gameID, versionID uint64, newStatus int, reviewComment string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReviewGameVersion", ctx, gameID, versionID, newStatus, reviewComment)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ReviewGameVersion indicates an expected call of ReviewGameVersion.
+func (mr *MockIGameDAOMockRecorder) ReviewGameVersion(ctx, gameID, versionID, newStatus, reviewComment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReviewGameVersion", reflect.TypeOf((*MockIGameDAO)(nil).ReviewGameVersion), ctx, gameID, versionID, newStatus, reviewComment)
+}
