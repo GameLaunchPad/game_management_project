@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/GameLaunchPad/game_management_project/dal"
@@ -164,6 +165,46 @@ func (d *gameDAO) ReviewGameVersion(ctx context.Context, gameID, versionID uint6
 			if result.RowsAffected == 0 {
 				return gorm.ErrRecordNotFound
 			}
+		}
+
+		return nil
+	})
+}
+
+var ErrVersionIsNotDraft = errors.New("the newest version of the game is not a draft")
+
+// DeleteGameDraft finds the newest version of a game, and if it's a draft, updates its status to Rejected.
+func (d *gameDAO) DeleteGameDraft(ctx context.Context, gameID uint64) error {
+	return dal.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. find the game record
+		var gameRecord ddl.GpGame
+		if err := tx.First(&gameRecord, gameID).Error; err != nil {
+			return err
+		}
+
+		if gameRecord.NewestGameVersionId == 0 {
+			// no versions exist for this game
+			return gorm.ErrRecordNotFound
+		}
+
+		// 2. find the newest version record
+		var newestVersion ddl.GpGameVersion
+		if err := tx.First(&newestVersion, gameRecord.NewestGameVersionId).Error; err != nil {
+			return err
+		}
+
+		// 3. check if the newest version is a draft
+		if newestVersion.Status != int(game.GameStatus_Draft) {
+			// if it's not a draft, cannot delete
+			return ErrVersionIsNotDraft
+		}
+
+		// 4. delete (mark as Rejected) the draft version
+		updateData := map[string]interface{}{
+			"status": int(game.GameStatus_Rejected),
+		}
+		if err := tx.Model(&newestVersion).Updates(updateData).Error; err != nil {
+			return err
 		}
 
 		return nil

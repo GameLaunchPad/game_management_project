@@ -64,6 +64,20 @@ func (mr *MockIGameDAOMockRecorder) CreateGameVersionAndUpdateGame(ctx, gameID, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGameVersionAndUpdateGame", reflect.TypeOf((*MockIGameDAO)(nil).CreateGameVersionAndUpdateGame), ctx, gameID, version)
 }
 
+// DeleteGameDraft mocks base method.
+func (m *MockIGameDAO) DeleteGameDraft(ctx context.Context, gameID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteGameDraft", ctx, gameID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteGameDraft indicates an expected call of DeleteGameDraft.
+func (mr *MockIGameDAOMockRecorder) DeleteGameDraft(ctx, gameID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteGameDraft", reflect.TypeOf((*MockIGameDAO)(nil).DeleteGameDraft), ctx, gameID)
+}
+
 // GetGameDetail mocks base method.
 func (m *MockIGameDAO) GetGameDetail(ctx context.Context, gameID uint64) (*ddl.GpGame, *ddl.GpGameVersion, *ddl.GpGameVersion, error) {
 	m.ctrl.T.Helper()
