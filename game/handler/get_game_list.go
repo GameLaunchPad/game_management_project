@@ -5,6 +5,7 @@ import (
 
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
 	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/service"
 )
 
 // GetGameList handles the business logic for getting a list of games.
@@ -36,7 +37,7 @@ func GetGameList(ctx context.Context, req *game.GetGameListRequest) (*game.GetGa
 	// transform to response format
 	briefGames := make([]*game.BriefGame, 0, len(gamesDdl))
 	for _, gameDdl := range gamesDdl {
-		briefGame, err := ConvertDdlToBriefGame(gameDdl)
+		briefGame, err := service.ConvertDdlToBriefGame(gameDdl)
 		if err != nil {
 			return &game.GetGameListResponse{
 				BaseResp: &common.BaseResp{Code: "500", Msg: "Failed to convert game data: " + err.Error()},

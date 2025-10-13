@@ -993,6 +993,91 @@ var fieldIDToName_CreateGameDetailResponse = map[int16]string{
 	255: "BaseResp",
 }
 
+type UpdateGameDraftRequest struct {
+	GameDetail *GameDetailWrite `thrift:"GameDetail,1" frugal:"1,default,GameDetailWrite" json:"GameDetail"`
+	SubmitMode SubmitMode       `thrift:"SubmitMode,2" frugal:"2,default,SubmitMode" json:"SubmitMode"`
+}
+
+func NewUpdateGameDraftRequest() *UpdateGameDraftRequest {
+	return &UpdateGameDraftRequest{}
+}
+
+func (p *UpdateGameDraftRequest) InitDefault() {
+}
+
+var UpdateGameDraftRequest_GameDetail_DEFAULT *GameDetailWrite
+
+func (p *UpdateGameDraftRequest) GetGameDetail() (v *GameDetailWrite) {
+	if !p.IsSetGameDetail() {
+		return UpdateGameDraftRequest_GameDetail_DEFAULT
+	}
+	return p.GameDetail
+}
+
+func (p *UpdateGameDraftRequest) GetSubmitMode() (v SubmitMode) {
+	return p.SubmitMode
+}
+func (p *UpdateGameDraftRequest) SetGameDetail(val *GameDetailWrite) {
+	p.GameDetail = val
+}
+func (p *UpdateGameDraftRequest) SetSubmitMode(val SubmitMode) {
+	p.SubmitMode = val
+}
+
+func (p *UpdateGameDraftRequest) IsSetGameDetail() bool {
+	return p.GameDetail != nil
+}
+
+func (p *UpdateGameDraftRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateGameDraftRequest(%+v)", *p)
+}
+
+var fieldIDToName_UpdateGameDraftRequest = map[int16]string{
+	1: "GameDetail",
+	2: "SubmitMode",
+}
+
+type UpdateGameDraftResponse struct {
+	BaseResp *common.BaseResp `thrift:"BaseResp,255" frugal:"255,default,common.BaseResp" json:"BaseResp"`
+}
+
+func NewUpdateGameDraftResponse() *UpdateGameDraftResponse {
+	return &UpdateGameDraftResponse{}
+}
+
+func (p *UpdateGameDraftResponse) InitDefault() {
+}
+
+var UpdateGameDraftResponse_BaseResp_DEFAULT *common.BaseResp
+
+func (p *UpdateGameDraftResponse) GetBaseResp() (v *common.BaseResp) {
+	if !p.IsSetBaseResp() {
+		return UpdateGameDraftResponse_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+func (p *UpdateGameDraftResponse) SetBaseResp(val *common.BaseResp) {
+	p.BaseResp = val
+}
+
+func (p *UpdateGameDraftResponse) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *UpdateGameDraftResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateGameDraftResponse(%+v)", *p)
+}
+
+var fieldIDToName_UpdateGameDraftResponse = map[int16]string{
+	255: "BaseResp",
+}
+
 type ReviewGameVersionRequest struct {
 	GameID        int64         `thrift:"GameID,1" frugal:"1,default,i64" json:"GameID"`
 	GameVersionID int64         `thrift:"GameVersionID,2" frugal:"2,default,i64" json:"GameVersionID"`
@@ -1150,6 +1235,8 @@ type GameService interface {
 
 	GetGameDetail(ctx context.Context, req *GetGameDetailRequest) (r *GetGameDetailResponse, err error)
 
+	UpdateGameDraft(ctx context.Context, req *UpdateGameDraftRequest) (r *UpdateGameDraftResponse, err error)
+
 	CreateGameDetail(ctx context.Context, req *CreateGameDetailRequest) (r *CreateGameDetailResponse, err error)
 
 	ReviewGameVersion(ctx context.Context, req *ReviewGameVersionRequest) (r *ReviewGameVersionResponse, err error)
@@ -1306,6 +1393,82 @@ func (p *GameServiceGetGameDetailResult) String() string {
 }
 
 var fieldIDToName_GameServiceGetGameDetailResult = map[int16]string{
+	0: "success",
+}
+
+type GameServiceUpdateGameDraftArgs struct {
+	Req *UpdateGameDraftRequest `thrift:"req,1" frugal:"1,default,UpdateGameDraftRequest" json:"req"`
+}
+
+func NewGameServiceUpdateGameDraftArgs() *GameServiceUpdateGameDraftArgs {
+	return &GameServiceUpdateGameDraftArgs{}
+}
+
+func (p *GameServiceUpdateGameDraftArgs) InitDefault() {
+}
+
+var GameServiceUpdateGameDraftArgs_Req_DEFAULT *UpdateGameDraftRequest
+
+func (p *GameServiceUpdateGameDraftArgs) GetReq() (v *UpdateGameDraftRequest) {
+	if !p.IsSetReq() {
+		return GameServiceUpdateGameDraftArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *GameServiceUpdateGameDraftArgs) SetReq(val *UpdateGameDraftRequest) {
+	p.Req = val
+}
+
+func (p *GameServiceUpdateGameDraftArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *GameServiceUpdateGameDraftArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GameServiceUpdateGameDraftArgs(%+v)", *p)
+}
+
+var fieldIDToName_GameServiceUpdateGameDraftArgs = map[int16]string{
+	1: "req",
+}
+
+type GameServiceUpdateGameDraftResult struct {
+	Success *UpdateGameDraftResponse `thrift:"success,0,optional" frugal:"0,optional,UpdateGameDraftResponse" json:"success,omitempty"`
+}
+
+func NewGameServiceUpdateGameDraftResult() *GameServiceUpdateGameDraftResult {
+	return &GameServiceUpdateGameDraftResult{}
+}
+
+func (p *GameServiceUpdateGameDraftResult) InitDefault() {
+}
+
+var GameServiceUpdateGameDraftResult_Success_DEFAULT *UpdateGameDraftResponse
+
+func (p *GameServiceUpdateGameDraftResult) GetSuccess() (v *UpdateGameDraftResponse) {
+	if !p.IsSetSuccess() {
+		return GameServiceUpdateGameDraftResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *GameServiceUpdateGameDraftResult) SetSuccess(x interface{}) {
+	p.Success = x.(*UpdateGameDraftResponse)
+}
+
+func (p *GameServiceUpdateGameDraftResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *GameServiceUpdateGameDraftResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GameServiceUpdateGameDraftResult(%+v)", *p)
+}
+
+var fieldIDToName_GameServiceUpdateGameDraftResult = map[int16]string{
 	0: "success",
 }
 

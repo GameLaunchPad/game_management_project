@@ -34,3 +34,8 @@ func (s *GameServiceImpl) ReviewGameVersion(ctx context.Context, req *game.Revie
 func (s *GameServiceImpl) DeleteGameDraft(ctx context.Context, req *game.DeleteGameDraftRequest) (resp *game.DeleteGameDraftResponse, err error) {
 	return handler.DeleteGameDraft(ctx, req)
 }
+
+// UpdateGameDraft implements the GameServiceImpl interface.
+func (s *GameServiceImpl) UpdateGameDraft(ctx context.Context, req *game.UpdateGameDraftRequest) (resp *game.UpdateGameDraftResponse, err error) {
+	return handler.UpdateGameDraft(ctx, req)
+}
