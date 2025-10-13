@@ -1,5 +1,7 @@
 namespace go game
 
+include "common.thrift"
+
 struct GetGameListRequest {
    1: optional GameListFilter Filter
    2: optional GameListSorter Sorter
@@ -18,7 +20,7 @@ struct GameListSorter {
 struct GetGameListResponse {
     1: list<BriefGame> GameList
     2: i32 TotalCount
-    //255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 struct BriefGame {
@@ -26,9 +28,10 @@ struct BriefGame {
     2: i64 CpID
     3: string GameName
     4: string GameIcon
-    5: i64 CreateTime
-    6: i64 UpdateTime
-    7: GameStatus GameStatus
+    5: string HeaderImage // 头图
+    6: i64 CreateTime
+    7: i64 UpdateTime
+    8: GameStatus GameStatus
 }
 
 enum GameStatus {
@@ -45,7 +48,7 @@ struct GetGameDetailRequest {
 
 struct GetGameDetailResponse {
     1: GameDetail GameDetail
-    // 255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 struct GameDetail {
@@ -62,16 +65,17 @@ struct GameVersion {
     2: i64 GamVersionID
     3: string GameName
     4: string GameIcon
-    5: string GameIntroduction
-    6: list<string> GameIntroductionImages
-    7: list<GamePlatform> GamePlatforms
-    8: string PackageName // 包名
-    9: string DownloadURL // 下载链接
-    10: GameStatus GameStatus // 游戏状态
-    11: string ReviewComment
-    12: i64 ReviewTime
-    13: i64 CreateTime
-    14: i64 UpdateTime
+    5: string HeaderImage
+    6: string GameIntroduction
+    7: list<string> GameIntroductionImages
+    8: list<GamePlatform> GamePlatforms
+    9: string PackageName // 包名
+    10: string DownloadURL // 下载链接
+    11: GameStatus GameStatus // 游戏状态
+    12: string ReviewComment
+    13: i64 ReviewTime
+    14: i64 CreateTime
+    15: i64 UpdateTime
 }
 
 enum GamePlatform {
@@ -95,9 +99,17 @@ struct CreateGameDetailRequest {
 
 struct CreateGameDetailResponse {
     1: i64 GameID
-    // 255: BaseResp base_resp
+    255: common.BaseResp BaseResp
 }
 
+struct UpdateGameDraftRequest {
+    1: GameDetailWrite GameDetail
+    2: SubmitMode SubmitMode
+}
+
+struct UpdateGameDraftResponse {
+    255: common.BaseResp BaseResp
+}
 
 enum SubmitMode {
     Unset = 0
@@ -108,11 +120,11 @@ enum SubmitMode {
 struct ReviewGameVersionRequest {
    1: i64 GameID
    2: i64 GameVersionID
-   3: ReviewResult review_result
+   3: ReviewResult ReviewResult
 }
 
 struct ReviewGameVersionResponse {
-    //255: BaseResp BaseResp
+    255: common.BaseResp BaseResp
 }
 
 enum ReviewResult {
@@ -121,10 +133,20 @@ enum ReviewResult {
     Reject = 2
 }
 
+struct DeleteGameDraftRequest {
+    1: i64 GameID
+}
+
+struct DeleteGameDraftResponse {
+    255: common.BaseResp BaseResp
+}
+
 service GameService {
     GetGameListResponse GetGameList (1: GetGameListRequest req) // 获取游戏列表
     GetGameDetailResponse GetGameDetail (1: GetGameDetailRequest req) // 获取游戏详情
+    UpdateGameDraftResponse UpdateGameDraft (1: UpdateGameDraftRequest req) // 更新游戏草稿
     CreateGameDetailResponse CreateGameDetail (1: CreateGameDetailRequest req) // 创建游戏详情
     ReviewGameVersionResponse ReviewGameVersion (1: ReviewGameVersionRequest req) // 审核游戏信息
+    DeleteGameDraftResponse DeleteGameDraft (1: DeleteGameDraftRequest req) // 删除游戏草稿
 }
 
