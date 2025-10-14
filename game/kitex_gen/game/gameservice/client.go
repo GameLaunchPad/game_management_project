@@ -13,6 +13,7 @@ import (
 type Client interface {
 	GetGameList(ctx context.Context, req *game.GetGameListRequest, callOptions ...callopt.Option) (r *game.GetGameListResponse, err error)
 	GetGameDetail(ctx context.Context, req *game.GetGameDetailRequest, callOptions ...callopt.Option) (r *game.GetGameDetailResponse, err error)
+	UpdateGameDraft(ctx context.Context, req *game.UpdateGameDraftRequest, callOptions ...callopt.Option) (r *game.UpdateGameDraftResponse, err error)
 	CreateGameDetail(ctx context.Context, req *game.CreateGameDetailRequest, callOptions ...callopt.Option) (r *game.CreateGameDetailResponse, err error)
 	ReviewGameVersion(ctx context.Context, req *game.ReviewGameVersionRequest, callOptions ...callopt.Option) (r *game.ReviewGameVersionResponse, err error)
 	DeleteGameDraft(ctx context.Context, req *game.DeleteGameDraftRequest, callOptions ...callopt.Option) (r *game.DeleteGameDraftResponse, err error)
@@ -55,6 +56,11 @@ func (p *kGameServiceClient) GetGameList(ctx context.Context, req *game.GetGameL
 func (p *kGameServiceClient) GetGameDetail(ctx context.Context, req *game.GetGameDetailRequest, callOptions ...callopt.Option) (r *game.GetGameDetailResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetGameDetail(ctx, req)
+}
+
+func (p *kGameServiceClient) UpdateGameDraft(ctx context.Context, req *game.UpdateGameDraftRequest, callOptions ...callopt.Option) (r *game.UpdateGameDraftResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateGameDraft(ctx, req)
 }
 
 func (p *kGameServiceClient) CreateGameDetail(ctx context.Context, req *game.CreateGameDetailRequest, callOptions ...callopt.Option) (r *game.CreateGameDetailResponse, err error) {

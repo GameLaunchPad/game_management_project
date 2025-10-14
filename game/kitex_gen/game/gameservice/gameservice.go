@@ -27,6 +27,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"UpdateGameDraft": kitex.NewMethodInfo(
+		updateGameDraftHandler,
+		newGameServiceUpdateGameDraftArgs,
+		newGameServiceUpdateGameDraftResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"CreateGameDetail": kitex.NewMethodInfo(
 		createGameDetailHandler,
 		newGameServiceCreateGameDetailArgs,
@@ -150,6 +157,24 @@ func newGameServiceGetGameDetailResult() interface{} {
 	return game.NewGameServiceGetGameDetailResult()
 }
 
+func updateGameDraftHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*game.GameServiceUpdateGameDraftArgs)
+	realResult := result.(*game.GameServiceUpdateGameDraftResult)
+	success, err := handler.(game.GameService).UpdateGameDraft(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newGameServiceUpdateGameDraftArgs() interface{} {
+	return game.NewGameServiceUpdateGameDraftArgs()
+}
+
+func newGameServiceUpdateGameDraftResult() interface{} {
+	return game.NewGameServiceUpdateGameDraftResult()
+}
+
 func createGameDetailHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*game.GameServiceCreateGameDetailArgs)
 	realResult := result.(*game.GameServiceCreateGameDetailResult)
@@ -229,6 +254,16 @@ func (p *kClient) GetGameDetail(ctx context.Context, req *game.GetGameDetailRequ
 	_args.Req = req
 	var _result game.GameServiceGetGameDetailResult
 	if err = p.c.Call(ctx, "GetGameDetail", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateGameDraft(ctx context.Context, req *game.UpdateGameDraftRequest) (r *game.UpdateGameDraftResponse, err error) {
+	var _args game.GameServiceUpdateGameDraftArgs
+	_args.Req = req
+	var _result game.GameServiceUpdateGameDraftResult
+	if err = p.c.Call(ctx, "UpdateGameDraft", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

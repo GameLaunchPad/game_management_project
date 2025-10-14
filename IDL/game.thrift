@@ -102,6 +102,14 @@ struct CreateGameDetailResponse {
     255: common.BaseResp BaseResp
 }
 
+struct UpdateGameDraftRequest {
+    1: GameDetailWrite GameDetail
+    2: SubmitMode SubmitMode
+}
+
+struct UpdateGameDraftResponse {
+    255: common.BaseResp BaseResp
+}
 
 enum SubmitMode {
     Unset = 0
@@ -136,6 +144,7 @@ struct DeleteGameDraftResponse {
 service GameService {
     GetGameListResponse GetGameList (1: GetGameListRequest req) // 获取游戏列表
     GetGameDetailResponse GetGameDetail (1: GetGameDetailRequest req) // 获取游戏详情
+    UpdateGameDraftResponse UpdateGameDraft (1: UpdateGameDraftRequest req) // 更新游戏草稿
     CreateGameDetailResponse CreateGameDetail (1: CreateGameDetailRequest req) // 创建游戏详情
     ReviewGameVersionResponse ReviewGameVersion (1: ReviewGameVersionRequest req) // 审核游戏信息
     DeleteGameDraftResponse DeleteGameDraft (1: DeleteGameDraftRequest req) // 删除游戏草稿
