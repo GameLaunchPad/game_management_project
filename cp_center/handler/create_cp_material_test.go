@@ -6,9 +6,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/GameLaunchPad/game_management_project/handler"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
-	mock_repo "github.com/GameLaunchPad/game_management_project/repository/mocks"
+	"github.com/GameLaunchPad/game_management_project/cp_center/handler"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
+	mock_repo "github.com/GameLaunchPad/game_management_project/cp_center/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )

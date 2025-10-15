@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/handler"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	"github.com/GameLaunchPad/game_management_project/cp_center/handler"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 )
 
 // CpCenterServiceImpl implements the last service interface defined in the IDL.

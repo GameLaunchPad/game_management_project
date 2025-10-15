@@ -4,7 +4,7 @@ package cpcenterservice
 
 import (
 	"context"
-	cp_center "github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	cp_center "github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
 )

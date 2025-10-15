@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
 	"gorm.io/gorm"
 )
 

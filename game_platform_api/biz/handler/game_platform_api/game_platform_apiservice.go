@@ -5,6 +5,7 @@ package game_platform_api
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	"github.com/GameLaunchPad/game_management_project/game_platform_api/biz/model/common"
@@ -24,8 +25,22 @@ func CreateCPMaterial(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	cpSvc := service.NewCpCenterService()
+	rpcResp, err := cpSvc.CreateMaterial(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
 
 	resp := new(game_platform_api.CreateCPMaterialResponse)
+
+	resp = &game_platform_api.CreateCPMaterialResponse{
+		Data: &game_platform_api.CreateCPMaterialData{
+			CpID:       strconv.FormatInt(rpcResp.CpID, 10),
+			MaterialID: strconv.FormatInt(rpcResp.MaterialID, 10),
+		},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -41,7 +56,18 @@ func UpdateCPMaterial(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	cpSvc := service.NewCpCenterService()
+	rpcResp, err := cpSvc.UpdateMaterial(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.UpdateCPMaterialResponse)
+
+	resp = &game_platform_api.UpdateCPMaterialResponse{
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -57,7 +83,19 @@ func ReviewCPMaterial(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	cpSvc := service.NewCpCenterService()
+	rpcResp, err := cpSvc.ReviewMaterial(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.ReviewCPMaterialResponse)
+
+	resp = &game_platform_api.ReviewCPMaterialResponse{
+		Data:     &game_platform_api.ReviewCPMaterialData{},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -73,7 +111,32 @@ func GetCPMaterial(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	cpSvc := service.NewCpCenterService()
+	rpcResp, err := cpSvc.GetMaterial(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.GetCPMaterialResponse)
+	resp = &game_platform_api.GetCPMaterialResponse{
+		Data: &game_platform_api.GetCPMaterialData{
+			CpMaterial: &game_platform_api.CPMaterial{
+				MaterialID:         strconv.FormatInt(rpcResp.CPMaterial.MaterialID, 10),
+				CpID:               strconv.FormatInt(rpcResp.CPMaterial.CpID, 10),
+				CpIcon:             rpcResp.CPMaterial.CpIcon,
+				CpName:             rpcResp.CPMaterial.CpName,
+				VerificationImages: rpcResp.CPMaterial.VerificationImages,
+				BusinessLicense:    rpcResp.CPMaterial.BusinessLicenses,
+				Website:            rpcResp.CPMaterial.Website,
+				ReviewComment:      rpcResp.CPMaterial.ReviewComment,
+				CreateTime:         rpcResp.CPMaterial.CreateTime,
+				ModifyTime:         rpcResp.CPMaterial.ModifyTime,
+				Status:             game_platform_api.MaterialStatus(rpcResp.CPMaterial.Status),
+			},
+		},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

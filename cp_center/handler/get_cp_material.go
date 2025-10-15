@@ -3,12 +3,14 @@ package handler
 import (
 	"context"
 	"errors"
+	"log"
 
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 	"gorm.io/gorm"
 )
 
 func (h *CPMaterialHandler) GetCPMaterial(ctx context.Context, req *cp_center.GetCPMaterialRequest) (*cp_center.GetCPMaterialResponse, error) {
+	log.Printf("GetCPMaterial 收到请求参数：%+v\n", req)
 	// 参数校验
 	if req.CpID <= 0 {
 		return nil, errors.New("invalid parameter: cp_id must be positive")

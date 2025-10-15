@@ -6,8 +6,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 	"gorm.io/gorm"
 )
 
