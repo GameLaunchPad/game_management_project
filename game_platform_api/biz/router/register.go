@@ -3,7 +3,7 @@
 package router
 
 import (
-	game_platform_api "github.com/GameLaunchPad/game_management_project/biz/router/game_platform_api"
+	game_platform_api "github.com/GameLaunchPad/game_management_project/game_platform_api/biz/router/game_platform_api"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 

@@ -80,3 +80,13 @@ func _reviewcpmaterialMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _idMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletegamedraftMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

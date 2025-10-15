@@ -4,8 +4,12 @@ package game_platform_api
 
 import (
 	"context"
+	"fmt"
 
-	game_platform_api "github.com/GameLaunchPad/game_management_project/biz/model/game_platform_api"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game_platform_api/biz/model/common"
+	game_platform_api "github.com/GameLaunchPad/game_management_project/game_platform_api/biz/model/game_platform_api"
+	"github.com/GameLaunchPad/game_management_project/game_platform_api/biz/service"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -85,7 +89,22 @@ func GetGameList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.GetGameList(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.GetGameListResponse)
+
+	resp = &game_platform_api.GetGameListResponse{
+		Data: &game_platform_api.GetGameListData{
+			GameList:   convertBriefGameListToAPI(rpcResp.GameList),
+			TotalCount: rpcResp.TotalCount,
+		},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -101,7 +120,21 @@ func GetGameDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.GetGameDetail(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.GetGameDetailResponse)
+
+	resp = &game_platform_api.GetGameDetailResponse{
+		Data: &game_platform_api.GetGameDetailData{
+			GameDetail: convertGameDetailToAPI(rpcResp.GameDetail),
+		},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -117,7 +150,21 @@ func CreateGameDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.CreateGameDetail(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.CreateGameDetailResponse)
+
+	resp = &game_platform_api.CreateGameDetailResponse{
+		Data: &game_platform_api.CreateGameDetailData{
+			GameID: fmt.Sprint(rpcResp.GameID),
+		},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -133,7 +180,19 @@ func UpdateGameDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.UpdateGameDetail(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.UpdateGameDetailResponse)
+
+	resp = &game_platform_api.UpdateGameDetailResponse{
+		Data:     &game_platform_api.UpdateGameDetailData{},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -149,7 +208,139 @@ func ReviewGameVersion(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.ReviewGameVersion(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
 	resp := new(game_platform_api.ReviewGameVersionResponse)
 
+	resp = &game_platform_api.ReviewGameVersionResponse{
+		Data:     &game_platform_api.ReviewGameVersionData{},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
+
 	c.JSON(consts.StatusOK, resp)
+}
+
+// DeleteGameDraft .
+// @router /api/v1/games/:id/draft [DELETE]
+func DeleteGameDraft(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req game_platform_api.DeleteGameDraftRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	gameSvc := service.NewGameService()
+	rpcResp, err := gameSvc.DeleteGameDraft(ctx, &req)
+	if err != nil {
+		c.String(consts.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := new(game_platform_api.DeleteGameDraftResponse)
+
+	resp = &game_platform_api.DeleteGameDraftResponse{
+		Data:     &game_platform_api.DeleteGameDraftData{},
+		BaseResp: (*common.BaseResp)(rpcResp.BaseResp),
+	}
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+func convertBriefGameToAPI(rpcGame *game.BriefGame) *game_platform_api.BriefGame {
+	if rpcGame == nil {
+		return nil
+	}
+	return &game_platform_api.BriefGame{
+		GameID:     fmt.Sprint(rpcGame.GameID),
+		CpID:       fmt.Sprint(rpcGame.CpID),
+		GameName:   rpcGame.GameName,
+		GameIcon:   rpcGame.GameIcon,
+		CreateTime: rpcGame.CreateTime,
+		UpdateTime: rpcGame.UpdateTime,
+		GameStatus: convertGameStatusToAPI(rpcGame.GameStatus),
+	}
+}
+
+func convertBriefGameListToAPI(rpcList []*game.BriefGame) []*game_platform_api.BriefGame {
+	apiList := make([]*game_platform_api.BriefGame, 0, len(rpcList))
+	for _, bg := range rpcList {
+		apiList = append(apiList, convertBriefGameToAPI(bg))
+	}
+	return apiList
+}
+
+func convertGameDetailToAPI(rpcDetail *game.GameDetail) *game_platform_api.GameDetail {
+	if rpcDetail == nil {
+		return nil
+	}
+	return &game_platform_api.GameDetail{
+		GameID:            fmt.Sprint(rpcDetail.GameID),
+		CpID:              fmt.Sprint(rpcDetail.CpID),
+		OnlineGameVersion: convertGameVersionToAPI(rpcDetail.OnlineGameVersion),
+		NewestGameVersion: convertGameVersionToAPI(rpcDetail.NewestGameVersion_),
+		CreateTime:        rpcDetail.CreateTime,
+		ModifyTime:        rpcDetail.ModifyTime,
+	}
+}
+
+func convertGameVersionToAPI(rpcVersion *game.GameVersion) *game_platform_api.GameVersion {
+	if rpcVersion == nil {
+		return nil
+	}
+	return &game_platform_api.GameVersion{
+		GameID:                 fmt.Sprint(rpcVersion.GameID),
+		GameVersionID:          fmt.Sprint(rpcVersion.GamVersionID),
+		GameName:               rpcVersion.GameName,
+		GameIcon:               rpcVersion.GameIcon,
+		GameIntroduction:       rpcVersion.GameIntroduction,
+		GameIntroductionImages: rpcVersion.GameIntroductionImages,
+		HeaderImage:            rpcVersion.HeaderImage,
+		GamePlatforms:          convertPlatformToAPI(rpcVersion.GamePlatforms),
+		PackageName:            rpcVersion.PackageName,
+		DownloadURL:            rpcVersion.DownloadURL,
+		GameStatus:             convertGameStatusToAPI(rpcVersion.GameStatus),
+		ReviewRemark: &game_platform_api.ReviewRemark{ // 注意: rpc层目前只有comment和time
+			Remark:     rpcVersion.ReviewComment,
+			ReviewTime: rpcVersion.ReviewTime,
+		},
+		CreateTime: rpcVersion.CreateTime,
+		UpdateTime: rpcVersion.UpdateTime,
+	}
+}
+
+func convertGameStatusToAPI(status game.GameStatus) game_platform_api.GameStatus {
+	switch status {
+	case game.GameStatus_Draft:
+		return game_platform_api.GameStatus_Draft
+	case game.GameStatus_Reviewing:
+		return game_platform_api.GameStatus_Reviewing
+	case game.GameStatus_Published:
+		return game_platform_api.GameStatus_Published
+	case game.GameStatus_Rejected:
+		return game_platform_api.GameStatus_Rejected
+	default:
+		return game_platform_api.GameStatus_Unset
+	}
+}
+
+func convertPlatformToAPI(platforms []game.GamePlatform) []game_platform_api.GamePlatform {
+	apiPlatforms := make([]game_platform_api.GamePlatform, 0, len(platforms))
+	for _, p := range platforms {
+		switch p {
+		case game.GamePlatform_Android:
+			apiPlatforms = append(apiPlatforms, game_platform_api.GamePlatform_Android)
+		case game.GamePlatform_IOS:
+			apiPlatforms = append(apiPlatforms, game_platform_api.GamePlatform_IOS)
+		case game.GamePlatform_Web:
+			apiPlatforms = append(apiPlatforms, game_platform_api.GamePlatform_Web)
+		}
+	}
+	return apiPlatforms
 }

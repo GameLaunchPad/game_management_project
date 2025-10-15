@@ -7,7 +7,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"github.com/GameLaunchPad/game_management_project/biz/model/common"
+	"github.com/GameLaunchPad/game_management_project/game_platform_api/biz/model/common"
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
@@ -7662,6 +7662,287 @@ func (p *UpdateGameDetailData) String() string {
 
 }
 
+type DeleteGameDraftData struct {
+}
+
+func NewDeleteGameDraftData() *DeleteGameDraftData {
+	return &DeleteGameDraftData{}
+}
+
+func (p *DeleteGameDraftData) InitDefault() {
+}
+
+var fieldIDToName_DeleteGameDraftData = map[int16]string{}
+
+func (p *DeleteGameDraftData) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftData) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("DeleteGameDraftData"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteGameDraftData(%+v)", *p)
+
+}
+
+type DeleteGameDraftResponse struct {
+	Data     *DeleteGameDraftData `thrift:"data,1" form:"data" json:"data" query:"data"`
+	BaseResp *common.BaseResp     `thrift:"base_resp,255" form:"base_resp" json:"base_resp" query:"base_resp"`
+}
+
+func NewDeleteGameDraftResponse() *DeleteGameDraftResponse {
+	return &DeleteGameDraftResponse{}
+}
+
+func (p *DeleteGameDraftResponse) InitDefault() {
+}
+
+var DeleteGameDraftResponse_Data_DEFAULT *DeleteGameDraftData
+
+func (p *DeleteGameDraftResponse) GetData() (v *DeleteGameDraftData) {
+	if !p.IsSetData() {
+		return DeleteGameDraftResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+
+var DeleteGameDraftResponse_BaseResp_DEFAULT *common.BaseResp
+
+func (p *DeleteGameDraftResponse) GetBaseResp() (v *common.BaseResp) {
+	if !p.IsSetBaseResp() {
+		return DeleteGameDraftResponse_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+var fieldIDToName_DeleteGameDraftResponse = map[int16]string{
+	1:   "data",
+	255: "base_resp",
+}
+
+func (p *DeleteGameDraftResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *DeleteGameDraftResponse) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *DeleteGameDraftResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteGameDraftResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewDeleteGameDraftData()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Data = _field
+	return nil
+}
+func (p *DeleteGameDraftResponse) ReadField255(iprot thrift.TProtocol) error {
+	_field := common.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.BaseResp = _field
+	return nil
+}
+
+func (p *DeleteGameDraftResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteGameDraftResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Data.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DeleteGameDraftResponse) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base_resp", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.BaseResp.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *DeleteGameDraftResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteGameDraftResponse(%+v)", *p)
+
+}
+
 type ReviewGameVersionRequest struct {
 	GameID        string        `thrift:"game_id,1" form:"game_id" json:"game_id" query:"game_id"`
 	GameVersionID string        `thrift:"game_version_id,2" form:"game_version_id" json:"game_version_id" query:"game_version_id"`
@@ -8144,6 +8425,146 @@ func (p *ReviewGameVersionResponse) String() string {
 
 }
 
+type DeleteGameDraftRequest struct {
+	GameID int64 `thrift:"game_id,1" json:"game_id" path:"id"`
+}
+
+func NewDeleteGameDraftRequest() *DeleteGameDraftRequest {
+	return &DeleteGameDraftRequest{}
+}
+
+func (p *DeleteGameDraftRequest) InitDefault() {
+}
+
+func (p *DeleteGameDraftRequest) GetGameID() (v int64) {
+	return p.GameID
+}
+
+var fieldIDToName_DeleteGameDraftRequest = map[int16]string{
+	1: "game_id",
+}
+
+func (p *DeleteGameDraftRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteGameDraftRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.GameID = _field
+	return nil
+}
+
+func (p *DeleteGameDraftRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteGameDraftRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteGameDraftRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("game_id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.GameID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DeleteGameDraftRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteGameDraftRequest(%+v)", *p)
+
+}
+
 type ReviewGameVersionData struct {
 }
 
@@ -8246,6 +8667,8 @@ type GamePlatformAPIService interface {
 	UpdateGameDetail(ctx context.Context, req *UpdateGameDetailRequest) (r *UpdateGameDetailResponse, err error)
 
 	ReviewGameVersion(ctx context.Context, req *ReviewGameVersionRequest) (r *ReviewGameVersionResponse, err error)
+
+	DeleteGameDraft(ctx context.Context, req *DeleteGameDraftRequest) (r *DeleteGameDraftResponse, err error)
 }
 
 type GamePlatformAPIServiceClient struct {
@@ -8355,6 +8778,15 @@ func (p *GamePlatformAPIServiceClient) ReviewGameVersion(ctx context.Context, re
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *GamePlatformAPIServiceClient) DeleteGameDraft(ctx context.Context, req *DeleteGameDraftRequest) (r *DeleteGameDraftResponse, err error) {
+	var _args GamePlatformAPIServiceDeleteGameDraftArgs
+	_args.Req = req
+	var _result GamePlatformAPIServiceDeleteGameDraftResult
+	if err = p.Client_().Call(ctx, "DeleteGameDraft", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type GamePlatformAPIServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -8385,6 +8817,7 @@ func NewGamePlatformAPIServiceProcessor(handler GamePlatformAPIService) *GamePla
 	self.AddToProcessorMap("CreateGameDetail", &gamePlatformAPIServiceProcessorCreateGameDetail{handler: handler})
 	self.AddToProcessorMap("UpdateGameDetail", &gamePlatformAPIServiceProcessorUpdateGameDetail{handler: handler})
 	self.AddToProcessorMap("ReviewGameVersion", &gamePlatformAPIServiceProcessorReviewGameVersion{handler: handler})
+	self.AddToProcessorMap("DeleteGameDraft", &gamePlatformAPIServiceProcessorDeleteGameDraft{handler: handler})
 	return self
 }
 func (p *GamePlatformAPIServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -8820,6 +9253,54 @@ func (p *gamePlatformAPIServiceProcessorReviewGameVersion) Process(ctx context.C
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("ReviewGameVersion", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type gamePlatformAPIServiceProcessorDeleteGameDraft struct {
+	handler GamePlatformAPIService
+}
+
+func (p *gamePlatformAPIServiceProcessorDeleteGameDraft) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := GamePlatformAPIServiceDeleteGameDraftArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("DeleteGameDraft", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := GamePlatformAPIServiceDeleteGameDraftResult{}
+	var retval *DeleteGameDraftResponse
+	if retval, err2 = p.handler.DeleteGameDraft(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteGameDraft: "+err2.Error())
+		oprot.WriteMessageBegin("DeleteGameDraft", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("DeleteGameDraft", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -11480,5 +11961,299 @@ func (p *GamePlatformAPIServiceReviewGameVersionResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GamePlatformAPIServiceReviewGameVersionResult(%+v)", *p)
+
+}
+
+type GamePlatformAPIServiceDeleteGameDraftArgs struct {
+	Req *DeleteGameDraftRequest `thrift:"req,1"`
+}
+
+func NewGamePlatformAPIServiceDeleteGameDraftArgs() *GamePlatformAPIServiceDeleteGameDraftArgs {
+	return &GamePlatformAPIServiceDeleteGameDraftArgs{}
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) InitDefault() {
+}
+
+var GamePlatformAPIServiceDeleteGameDraftArgs_Req_DEFAULT *DeleteGameDraftRequest
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) GetReq() (v *DeleteGameDraftRequest) {
+	if !p.IsSetReq() {
+		return GamePlatformAPIServiceDeleteGameDraftArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_GamePlatformAPIServiceDeleteGameDraftArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GamePlatformAPIServiceDeleteGameDraftArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewDeleteGameDraftRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteGameDraft_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GamePlatformAPIServiceDeleteGameDraftArgs(%+v)", *p)
+
+}
+
+type GamePlatformAPIServiceDeleteGameDraftResult struct {
+	Success *DeleteGameDraftResponse `thrift:"success,0,optional"`
+}
+
+func NewGamePlatformAPIServiceDeleteGameDraftResult() *GamePlatformAPIServiceDeleteGameDraftResult {
+	return &GamePlatformAPIServiceDeleteGameDraftResult{}
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) InitDefault() {
+}
+
+var GamePlatformAPIServiceDeleteGameDraftResult_Success_DEFAULT *DeleteGameDraftResponse
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) GetSuccess() (v *DeleteGameDraftResponse) {
+	if !p.IsSetSuccess() {
+		return GamePlatformAPIServiceDeleteGameDraftResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_GamePlatformAPIServiceDeleteGameDraftResult = map[int16]string{
+	0: "success",
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GamePlatformAPIServiceDeleteGameDraftResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewDeleteGameDraftResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteGameDraft_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *GamePlatformAPIServiceDeleteGameDraftResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GamePlatformAPIServiceDeleteGameDraftResult(%+v)", *p)
 
 }

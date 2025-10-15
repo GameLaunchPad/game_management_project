@@ -3,7 +3,7 @@
 package main
 
 import (
-	router "github.com/GameLaunchPad/game_management_project/biz/router"
+	router "github.com/GameLaunchPad/game_management_project/game_platform_api/biz/router"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 

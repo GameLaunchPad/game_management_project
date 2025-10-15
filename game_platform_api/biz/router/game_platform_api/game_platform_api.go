@@ -3,7 +3,7 @@
 package game_platform_api
 
 import (
-	game_platform_api "github.com/GameLaunchPad/game_management_project/biz/handler/game_platform_api"
+	game_platform_api "github.com/GameLaunchPad/game_management_project/game_platform_api/biz/handler/game_platform_api"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -24,6 +24,8 @@ func Register(r *server.Hertz) {
 			_v1.GET("/games", append(_getgamelistMw(), game_platform_api.GetGameList)...)
 			_games := _v1.Group("/games", _gamesMw()...)
 			_games.GET("/:id", append(_getgamedetailMw(), game_platform_api.GetGameDetail)...)
+			_id := _games.Group("/:id", _idMw()...)
+			_id.DELETE("/draft", append(_deletegamedraftMw(), game_platform_api.DeleteGameDraft)...)
 			_games.PUT("/:id", append(_updategamedetailMw(), game_platform_api.UpdateGameDetail)...)
 			_games.POST("/review", append(_reviewgameversionMw(), game_platform_api.ReviewGameVersion)...)
 			_v1.POST("/games", append(_creategamedetailMw(), game_platform_api.CreateGameDetail)...)

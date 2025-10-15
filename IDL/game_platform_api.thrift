@@ -236,6 +236,14 @@ struct UpdateGameDetailData {
 
 }
 
+struct DeleteGameDraftData {
+}
+
+struct DeleteGameDraftResponse {
+    1: DeleteGameDraftData data
+    255: common.BaseResp base_resp
+}
+
 struct ReviewGameVersionRequest {
     1: string game_id
     2: string game_version_id
@@ -246,6 +254,10 @@ struct ReviewGameVersionRequest {
 struct ReviewGameVersionResponse {
     1: ReviewGameVersionData data
     2: common.BaseResp base_resp
+}
+
+struct DeleteGameDraftRequest {
+    1: i64 game_id (api.path = 'id')
 }
 
 struct ReviewGameVersionData {
@@ -264,4 +276,5 @@ service GamePlatformAPIService {
      CreateGameDetailResponse CreateGameDetail (1: CreateGameDetailRequest req) (api.post = '/api/v1/games') // 创建游戏信息
      UpdateGameDetailResponse UpdateGameDetail(1: UpdateGameDetailRequest req) (api.put = '/api/v1/games/:id') // 更新游戏信息
      ReviewGameVersionResponse ReviewGameVersion(1: ReviewGameVersionRequest req) (api.post = '/api/v1/games/review') // 审核游戏信息
+     DeleteGameDraftResponse DeleteGameDraft(1: DeleteGameDraftRequest req) (api.delete = '/api/v1/games/:id/draft') // 删除游戏草稿
 }

@@ -3,7 +3,7 @@
 package main
 
 import (
-	handler "github.com/GameLaunchPad/game_management_project/biz/handler"
+	handler "github.com/GameLaunchPad/game_management_project/game_platform_api/biz/handler"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 

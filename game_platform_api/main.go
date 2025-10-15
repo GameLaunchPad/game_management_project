@@ -3,11 +3,21 @@
 package main
 
 import (
+	"log"
+
+	"github.com/GameLaunchPad/game_management_project/game_platform_api/config"
+	"github.com/GameLaunchPad/game_management_project/game_platform_api/rpc"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	h := server.Default()
+	if err := config.Init("./script/config.yaml"); err != nil {
+		log.Fatalf("Failed to init config: %v", err)
+	}
+
+	rpc.Init()
+
+	h := server.Default(server.WithHostPorts(":8881"))
 
 	register(h)
 	h.Spin()
