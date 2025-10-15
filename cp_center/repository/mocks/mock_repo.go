@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	ddl "github.com/GameLaunchPad/game_management_project/dao/ddl"
+	ddl "github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
 	gomock "go.uber.org/mock/gomock"
 )
 

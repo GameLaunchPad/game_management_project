@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	"github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 	"github.com/yitter/idgenerator-go/idgen"
 )
 

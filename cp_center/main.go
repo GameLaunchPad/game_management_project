@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/GameLaunchPad/game_management_project/dal"
-	cp_center "github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center/cpcenterservice"
+	"github.com/GameLaunchPad/game_management_project/cp_center/dal"
+	cp_center "github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center/cpcenterservice"
 )
 
 func main() {

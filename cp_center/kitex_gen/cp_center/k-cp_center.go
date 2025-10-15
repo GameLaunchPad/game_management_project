@@ -10,7 +10,7 @@ import (
 
 	"github.com/cloudwego/gopkg/protocol/thrift"
 
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/common"
 )
 
 var (

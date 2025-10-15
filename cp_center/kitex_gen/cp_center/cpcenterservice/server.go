@@ -2,7 +2,7 @@
 package cpcenterservice
 
 import (
-	cp_center "github.com/GameLaunchPad/game_management_project/kitex_gen/cp_center"
+	cp_center "github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
 	server "github.com/cloudwego/kitex/server"
 )
 

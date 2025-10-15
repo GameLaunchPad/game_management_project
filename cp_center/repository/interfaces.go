@@ -5,7 +5,7 @@ package repository
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
 )
 
 // ICPMaterialRepo 定义了 CP 素材模块所有数据库操作的接口。

@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/GameLaunchPad/game_management_project/constdef"
-	"github.com/GameLaunchPad/game_management_project/handler"
-	"github.com/GameLaunchPad/game_management_project/repository"
+	"github.com/GameLaunchPad/game_management_project/cp_center/constdef"
+	"github.com/GameLaunchPad/game_management_project/cp_center/handler"
+	"github.com/GameLaunchPad/game_management_project/cp_center/repository"
 	"github.com/yitter/idgenerator-go/idgen"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/GameLaunchPad/game_management_project/repository"
+import "github.com/GameLaunchPad/game_management_project/cp_center/repository"
 
 type CPMaterialHandler struct {
 	Repo repository.ICPMaterialRepo
