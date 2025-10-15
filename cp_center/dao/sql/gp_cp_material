@@ -1,0 +1,16 @@
+CREATE TABLE `gp_cp_material` (
+ `id` bigint(20) unsigned NOT NULL COMMENT '材料ID',
+ `cp_id` bigint(20) unsigned NOT NULL COMMENT '厂商id',
+ `cp_icon` varchar(256) NOT NULL DEFAULT '' COMMENT '厂商ICON',
+ `cp_name` varchar(512) NOT NULL DEFAULT '' COMMENT '厂商名字',
+ `verification_images` text COMMENT '资质图片URI（Json）',
+ `business_license` varchar(2048) NOT NULL DEFAULT '' COMMENT '营业执照',
+ `website` text COMMENT '官网地址',
+ `status` int(11) NOT NULL COMMENT '0-Unset, 1-草稿, 2-审核中, 3-已发布，4-已拒绝',
+ `operator` varchar(128) NOT NULL DEFAULT '' COMMENT '审核人',
+ `review_comment` text COMMENT '审核意见',
+ `create_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ `modify_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+ PRIMARY KEY (`id`),
+ KEY `idx_cp_id` (`cp_id`)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='资质材料信息'

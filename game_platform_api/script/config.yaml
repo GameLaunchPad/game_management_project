@@ -1,0 +1,5 @@
+# game_platform_api/script/config.yaml
+
+rpc:
+  game_service_addr: "127.0.0.1:8888"
+  cp_center_service_addr: "127.0.0.1:8889"

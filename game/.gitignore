@@ -1,0 +1,14 @@
+/bin/                          # 项目根 bin/ 目录
+/build/                        # 常见构建输出目录
+*.exe                          # Windows 可执行文件
+*.exe~
+*.dll
+*.so
+*.dylib
+.cache/go-build/
+.DS_Store
+Thumbs.db
+coverage.out
+/output/
+/game/output/
+*.test

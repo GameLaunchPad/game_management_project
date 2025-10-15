@@ -1,0 +1,1 @@
+kitex -module github.com/GameLaunchPad/game_management_project -service cp_center -type thrift  ../IDL/cp_center.thrift

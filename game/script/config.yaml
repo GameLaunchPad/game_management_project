@@ -1,0 +1,2 @@
+mysql:
+  dsn: "root:admin123@tcp(127.0.0.1:3306)/game_launchpad?charset=utf8mb4&parseTime=True&loc=Local"
