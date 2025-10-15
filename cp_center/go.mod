@@ -1,6 +1,6 @@
 module github.com/GameLaunchPad/game_management_project
 
-go 1.25.1
+go 1.20
 
 require (
 	github.com/cloudwego/gopkg v0.1.6
