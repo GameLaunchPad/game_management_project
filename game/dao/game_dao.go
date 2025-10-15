@@ -37,23 +37,22 @@ func (d *gameDAO) CreateGame(ctx context.Context, game *ddl.GpGame, version *ddl
 	})
 }
 
-// CreateGameVersionAndUpdateGame creates a new game version and updates the main game's newest_game_version_id.
-func (d *gameDAO) CreateGameVersionAndUpdateGame(ctx context.Context, gameID uint64, version *ddl.GpGameVersion) error {
+// UpdateGameDraft creates a new draft version for an existing game and updates the game's newest version ID.
+func (d *gameDAO) UpdateGameDraft(ctx context.Context, gameID uint64, version *ddl.GpGameVersion) error {
 	return dal.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 1. check if the game exists
-		var game ddl.GpGame
-		if err := tx.First(&game, gameID).Error; err != nil {
-			return err
-		}
-
-		// 2. create new gp_game_version record
+		// 1. create new gp_game_version record
 		if err := tx.Create(version).Error; err != nil {
 			return err
 		}
 
-		// 3. update newest_game_version_id in gp_game
-		if err := tx.Model(&game).Update("newest_game_version_id", version.Id).Error; err != nil {
-			return err
+		// 2. update gp_game's newest_game_version_id
+		result := tx.Model(&ddl.GpGame{}).Where("id = ?", gameID).Update("newest_game_version_id", version.Id)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
 		}
 
 		return nil

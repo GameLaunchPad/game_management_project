@@ -50,20 +50,6 @@ func (mr *MockIGameDAOMockRecorder) CreateGame(ctx, game, version interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGame", reflect.TypeOf((*MockIGameDAO)(nil).CreateGame), ctx, game, version)
 }
 
-// CreateGameVersionAndUpdateGame mocks base method.
-func (m *MockIGameDAO) CreateGameVersionAndUpdateGame(ctx context.Context, gameID uint64, version *ddl.GpGameVersion) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateGameVersionAndUpdateGame", ctx, gameID, version)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateGameVersionAndUpdateGame indicates an expected call of CreateGameVersionAndUpdateGame.
-func (mr *MockIGameDAOMockRecorder) CreateGameVersionAndUpdateGame(ctx, gameID, version interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGameVersionAndUpdateGame", reflect.TypeOf((*MockIGameDAO)(nil).CreateGameVersionAndUpdateGame), ctx, gameID, version)
-}
-
 // DeleteGameDraft mocks base method.
 func (m *MockIGameDAO) DeleteGameDraft(ctx context.Context, gameID uint64) error {
 	m.ctrl.T.Helper()
@@ -123,4 +109,18 @@ func (m *MockIGameDAO) ReviewGameVersion(ctx context.Context, gameID, versionID 
 func (mr *MockIGameDAOMockRecorder) ReviewGameVersion(ctx, gameID, versionID, newStatus, reviewComment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReviewGameVersion", reflect.TypeOf((*MockIGameDAO)(nil).ReviewGameVersion), ctx, gameID, versionID, newStatus, reviewComment)
+}
+
+// UpdateGameDraft mocks base method.
+func (m *MockIGameDAO) UpdateGameDraft(ctx context.Context, gameID uint64, version *ddl.GpGameVersion) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateGameDraft", ctx, gameID, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateGameDraft indicates an expected call of UpdateGameDraft.
+func (mr *MockIGameDAOMockRecorder) UpdateGameDraft(ctx, gameID, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateGameDraft", reflect.TypeOf((*MockIGameDAO)(nil).UpdateGameDraft), ctx, gameID, version)
 }
