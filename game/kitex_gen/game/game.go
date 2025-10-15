@@ -7,7 +7,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/common"
 )
 
 type GameStatus int64

@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
-	"github.com/GameLaunchPad/game_management_project/config"
-	"github.com/GameLaunchPad/game_management_project/dal"
-	"github.com/GameLaunchPad/game_management_project/dao"
-	"github.com/GameLaunchPad/game_management_project/handler"
-	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game/gameservice"
+	"github.com/GameLaunchPad/game_management_project/game/config"
+	"github.com/GameLaunchPad/game_management_project/game/dal"
+	"github.com/GameLaunchPad/game_management_project/game/dao"
+	"github.com/GameLaunchPad/game_management_project/game/handler"
+	game "github.com/GameLaunchPad/game_management_project/game/kitex_gen/game/gameservice"
 )
 
 const configPath = "script/config.yaml"

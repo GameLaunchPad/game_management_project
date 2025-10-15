@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	"gorm.io/gorm"
 )
 

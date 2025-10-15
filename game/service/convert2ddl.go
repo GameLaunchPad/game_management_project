@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/GameLaunchPad/game_management_project/dao"
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/dao"
+	"github.com/GameLaunchPad/game_management_project/game/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 )
 
 func ConvertGameVersionToDdl(version *game.GameVersion) (*ddl.GpGameVersion, error) {

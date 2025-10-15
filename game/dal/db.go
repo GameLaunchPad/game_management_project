@@ -3,7 +3,7 @@ package dal
 import (
 	"log"
 
-	"github.com/GameLaunchPad/game_management_project/config"
+	"github.com/GameLaunchPad/game_management_project/game/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

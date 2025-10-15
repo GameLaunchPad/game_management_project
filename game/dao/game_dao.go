@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/GameLaunchPad/game_management_project/dal"
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/dal"
+	"github.com/GameLaunchPad/game_management_project/game/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	"gorm.io/gorm"
 )
 

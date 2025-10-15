@@ -5,7 +5,7 @@ package gameservice
 import (
 	"context"
 	"errors"
-	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	game "github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 )

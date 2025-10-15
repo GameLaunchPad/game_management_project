@@ -3,11 +3,11 @@ package handler
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/dao"
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/common"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
-	"github.com/GameLaunchPad/game_management_project/service"
+	"github.com/GameLaunchPad/game_management_project/game/dao"
+	"github.com/GameLaunchPad/game_management_project/game/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/common"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/service"
 	"github.com/yitter/idgenerator-go/idgen"
 )
 

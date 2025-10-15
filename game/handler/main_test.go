@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/GameLaunchPad/game_management_project/constdef"
+	"github.com/GameLaunchPad/game_management_project/game/constdef"
 	"github.com/yitter/idgenerator-go/idgen"
 )
 

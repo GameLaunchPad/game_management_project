@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dao "github.com/GameLaunchPad/game_management_project/dao"
-	ddl "github.com/GameLaunchPad/game_management_project/dao/ddl"
+	dao "github.com/GameLaunchPad/game_management_project/game/dao"
+	ddl "github.com/GameLaunchPad/game_management_project/game/dao/ddl"
 	gomock "github.com/golang/mock/gomock"
 )
 

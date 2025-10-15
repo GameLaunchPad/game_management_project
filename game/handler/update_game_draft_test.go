@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/GameLaunchPad/game_management_project/dao/mock"
-	"github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/dao/mock"
+	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"

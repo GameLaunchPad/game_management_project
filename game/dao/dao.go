@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/dao/ddl"
+	"github.com/GameLaunchPad/game_management_project/game/dao/ddl"
 )
 
 // IGameDAO defines the interface for game data access operations.

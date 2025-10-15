@@ -1,4 +1,4 @@
-module github.com/GameLaunchPad/game_management_project
+module github.com/GameLaunchPad/game_management_project/game
 
 go 1.25.1
 

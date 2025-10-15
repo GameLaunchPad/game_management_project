@@ -2,7 +2,7 @@
 package gameservice
 
 import (
-	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	game "github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 	server "github.com/cloudwego/kitex/server"
 )
 

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	"github.com/GameLaunchPad/game_management_project/handler"
-	game "github.com/GameLaunchPad/game_management_project/kitex_gen/game"
+	"github.com/GameLaunchPad/game_management_project/game/handler"
+	game "github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
 )
 
 // GameServiceImpl implements the last service interface defined in the IDL.
