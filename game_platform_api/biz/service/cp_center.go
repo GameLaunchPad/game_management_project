@@ -60,7 +60,6 @@ func (s *CpCenterService) CreateMaterial(ctx context.Context, req *game_platform
 // GetMaterial 处理获取 CP 物料信息的请求
 func (s *CpCenterService) GetMaterial(ctx context.Context, req *game_platform_api.GetCPMaterialRequest) (*cp_center.GetCPMaterialResponse, error) {
 	log.Printf("GetMaterial 收到请求参数：%+v\n", req)
-	// 类型转换：将 API 层的 string 类型 CpID 转换为 RPC 层的 int64
 	cpID, err := strconv.ParseInt(req.CpID, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("无效的 CpID 格式，必须为数字字符串：%w", err)
@@ -73,15 +72,15 @@ func (s *CpCenterService) GetMaterial(ctx context.Context, req *game_platform_ap
 
 	// 调用下游 RPC 服务
 	resp, err := rpc.CPCenterClient.GetCPMaterial(ctx, rpcReq)
+	log.Printf("resp：%+v, err: %+v\n", resp, err)
 	if err != nil {
-		return nil, fmt.Errorf("RPC 调用 GetCPMaterial 失败：%w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	// 业务逻辑错误处理
 	if resp.BaseResp != nil && resp.BaseResp.GetCode() != "0" {
 		return nil, fmt.Errorf("业务错误：%s", resp.BaseResp.Msg)
 	}
-
 	return resp, nil
 }
 
