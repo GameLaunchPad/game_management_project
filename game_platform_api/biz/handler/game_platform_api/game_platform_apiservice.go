@@ -5,6 +5,7 @@ package game_platform_api
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/GameLaunchPad/game_management_project/game/kitex_gen/game"
@@ -25,13 +26,22 @@ func CreateCPMaterial(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+
+	// 保持您原有的调用方式
 	cpSvc := service.NewCpCenterService()
 	rpcResp, err := cpSvc.CreateMaterial(ctx, &req)
+
 	if err != nil {
-		c.String(consts.StatusInternalServerError, err.Error())
+		// --- 这里是唯一的修改 ---
+		// 1. 在后台服务器日志中打印出详细的、真正的错误原因
+		log.Printf("调用 CreateMaterial 服务失败, 内部错误: %v", err)
+		// 2. 返回给前端一个模糊的、通用的错误提示，避免暴露系统内部细节
+		c.String(consts.StatusInternalServerError, "服务器内部错误，请联系管理员")
+		// --- 修改结束 ---
 		return
 	}
 
+	// 后续成功逻辑完全不变
 	resp := new(game_platform_api.CreateCPMaterialResponse)
 
 	resp = &game_platform_api.CreateCPMaterialResponse{
