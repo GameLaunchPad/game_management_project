@@ -2,32 +2,29 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"log"
 
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/common"
 	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
-	"gorm.io/gorm"
 )
 
 func (h *CPMaterialHandler) GetCPMaterial(ctx context.Context, req *cp_center.GetCPMaterialRequest) (*cp_center.GetCPMaterialResponse, error) {
 	log.Printf("GetCPMaterial 收到请求参数：%+v\n", req)
 	// 参数校验
 	if req.CpID <= 0 {
-		return nil, errors.New("invalid parameter: cp_id must be positive")
+		return &cp_center.GetCPMaterialResponse{
+			BaseResp: &common.BaseResp{Code: "500", Msg: "invalid parameter: cp_id must be positive: "},
+		}, nil
 	}
-
-	// 数据库查询 -> 改为调用 Repo 的方法
+	log.Printf("参数校验成功\n")
 	material, err := h.Repo.GetMaterialByCPID(ctx, int32(req.CpID))
-
+	log.Printf("获得结果：%+v。错误：%+v\n", material, err)
 	// 错误处理
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("cp material not found")
-		}
-		return nil, err
+		return &cp_center.GetCPMaterialResponse{
+			BaseResp: &common.BaseResp{Code: "500", Msg: err.Error()},
+		}, nil
 	}
-
-	// 构建响应
 	resp := &cp_center.GetCPMaterialResponse{
 		CPMaterial: &cp_center.CPMaterial{
 			MaterialID:         int64(material.Id),
@@ -42,8 +39,8 @@ func (h *CPMaterialHandler) GetCPMaterial(ctx context.Context, req *cp_center.Ge
 			CreateTime:         material.CreateTs.Unix(),
 			ModifyTime:         material.ModifyTs.Unix(),
 		},
+		BaseResp: &common.BaseResp{Code: "0", Msg: "success"},
 	}
-
-	// 返回成功的响应和 nil 错误
+	log.Printf("resp: %+v\n", material)
 	return resp, nil
 }

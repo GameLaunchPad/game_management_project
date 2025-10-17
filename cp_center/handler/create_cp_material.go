@@ -57,12 +57,15 @@ func (h *CPMaterialHandler) CreateCPMaterial(ctx context.Context, req *cp_center
 		ModifyTs:           time.Now(),
 	}
 
-	// 5. 调用 Repository 进行数据库插入
 	if err := h.Repo.CreateMaterial(ctx, material); err != nil {
-		return nil, fmt.Errorf("failed to create cp material in db: %w", err)
+		return &cp_center.CreateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  fmt.Sprintf("failed to create cp material in db: %s", err.Error()),
+			},
+		}, nil
 	}
 
-	// 6. 构建并返回成功响应
 	resp := &cp_center.CreateCPMaterialResponse{
 		CpID:       int64(material.CpId),
 		MaterialID: int64(material.Id),

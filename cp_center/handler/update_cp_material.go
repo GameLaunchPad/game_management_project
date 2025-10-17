@@ -14,30 +14,60 @@ import (
 func (h *CPMaterialHandler) UpdateCPMaterial(ctx context.Context, req *cp_center.UpdateCPMaterialRequest) (*cp_center.UpdateCPMaterialResponse, error) {
 	// 参数校验
 	if req.MaterialID <= 0 {
-		return nil, errors.New("invalid parameter: material_id is required")
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  "invalid parameter: material_id is required",
+			},
+		}, nil
 	}
 	if req.CpMaterial == nil {
-		return nil, errors.New("invalid parameter: cp_material data is missing")
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  "invalid parameter: cp_material data is missing",
+			},
+		}, nil
 	}
 	if req.SubmitMode == cp_center.SubmitMode_Unset {
-		return nil, errors.New("invalid parameter: submit_mode is required")
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  "invalid parameter: submit_mode is required",
+			},
+		}, nil
 	}
 	if req.CpMaterial.CpName == "" || req.CpMaterial.BusinessLicenses == "" {
-		return nil, errors.New("cp_name and business_license are required fields")
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  "cp_name and business_license are required fields",
+			},
+		}, nil
 	}
 
 	// 查询原始记录
 	material, err := h.Repo.GetMaterialByID(ctx, req.MaterialID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("material not found")
+			return &cp_center.UpdateCPMaterialResponse{
+				BaseResp: &common.BaseResp{
+					Code: "500",
+					Msg:  "material not found",
+				},
+			}, nil
 		}
 		return nil, err
 	}
 
 	// 业务逻辑校验
 	if material.Status == 2 || material.Status == 3 { // 2-审核中, 3-已发布
-		return nil, errors.New("cannot update material that is in review or online")
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  "cannot update material that is in review or online",
+			},
+		}, nil
 	}
 
 	// 准备要更新的数据
@@ -67,7 +97,13 @@ func (h *CPMaterialHandler) UpdateCPMaterial(ctx context.Context, req *cp_center
 	// 执行更新操作
 	_, err = h.Repo.UpdateMaterial(ctx, req.MaterialID, updates)
 	if err != nil {
-		return nil, err
+
+		return &cp_center.UpdateCPMaterialResponse{
+			BaseResp: &common.BaseResp{
+				Code: "500",
+				Msg:  err.Error(),
+			},
+		}, nil
 	}
 
 	// 构建并返回成功响应
