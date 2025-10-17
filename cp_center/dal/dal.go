@@ -27,13 +27,13 @@ func InitClient(ctx context.Context) (*handler.CPMaterialHandler, error) {
 	}
 
 	cpMaterialRepo := repository.NewCPMaterialRepo(DB)
-	cpMaterialHandler := handler.NewCPMaterialHandler(cpMaterialRepo)
+	cpRepo := repository.NewCPRepo(DB)
+	cpMaterialHandler := handler.NewCPMaterialHandler(cpMaterialRepo, cpRepo)
 
 	// 3. 在函数末尾返回创建好的实例和 nil (表示成功)
 	return cpMaterialHandler, nil
 }
 
-// (推荐修改) 让 initDB 返回 error 而不是 panic
 func initDB(ctx context.Context) error {
 	var err error
 	dsn := "kitex_user:your_actual_password@tcp(127.0.0.1:3306)/kitex_db?charset=utf8mb4&parseTime=True&loc=Local"

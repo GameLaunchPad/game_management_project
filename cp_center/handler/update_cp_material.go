@@ -47,7 +47,7 @@ func (h *CPMaterialHandler) UpdateCPMaterial(ctx context.Context, req *cp_center
 	}
 
 	// 查询原始记录
-	material, err := h.Repo.GetMaterialByID(ctx, req.MaterialID)
+	material, err := h.MaterialRepo.GetMaterialByID(ctx, req.MaterialID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &cp_center.UpdateCPMaterialResponse{
@@ -95,7 +95,7 @@ func (h *CPMaterialHandler) UpdateCPMaterial(ctx context.Context, req *cp_center
 	updates["modify_ts"] = time.Now()
 
 	// 执行更新操作
-	_, err = h.Repo.UpdateMaterial(ctx, req.MaterialID, updates)
+	_, err = h.MaterialRepo.UpdateMaterial(ctx, req.MaterialID, updates)
 	if err != nil {
 
 		return &cp_center.UpdateCPMaterialResponse{

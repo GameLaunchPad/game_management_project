@@ -17,7 +17,7 @@ func (h *CPMaterialHandler) GetCPMaterial(ctx context.Context, req *cp_center.Ge
 		}, nil
 	}
 	log.Printf("参数校验成功\n")
-	material, err := h.Repo.GetMaterialByCPID(ctx, int32(req.CpID))
+	material, err := h.MaterialRepo.GetMaterialByID(ctx, req.MaterialID)
 	log.Printf("获得结果：%+v。错误：%+v\n", material, err)
 	// 错误处理
 	if err != nil {

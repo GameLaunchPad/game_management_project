@@ -3,10 +3,11 @@ package handler
 import "github.com/GameLaunchPad/game_management_project/cp_center/repository"
 
 type CPMaterialHandler struct {
-	Repo repository.ICPMaterialRepo
+	MaterialRepo repository.ICPMaterialRepo
+	CPRepo       repository.ICPRepo
 }
 
 // NewCPMaterialHandler 是 Handler 的构造函数
-func NewCPMaterialHandler(repo repository.ICPMaterialRepo) *CPMaterialHandler {
-	return &CPMaterialHandler{Repo: repo}
+func NewCPMaterialHandler(MaterialRepo repository.ICPMaterialRepo, CPRepo repository.ICPRepo) *CPMaterialHandler {
+	return &CPMaterialHandler{MaterialRepo: MaterialRepo, CPRepo: CPRepo}
 }

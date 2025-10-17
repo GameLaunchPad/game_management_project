@@ -8,8 +8,6 @@ import (
 	"github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
 )
 
-// ICPMaterialRepo 定义了 CP 素材模块所有数据库操作的接口。
-// 您的 handler 将完全依赖这个接口。
 type ICPMaterialRepo interface {
 	// CreateMaterial 用于创建新的 CP 素材记录
 	CreateMaterial(ctx context.Context, material *ddl.GpCpMaterial) error
@@ -21,5 +19,11 @@ type ICPMaterialRepo interface {
 	GetMaterialByID(ctx context.Context, materialID int64) (*ddl.GpCpMaterial, error)
 
 	// GetMaterialByCPID 用于根据 CP ID 获取单个素材的详细信息
-	GetMaterialByCPID(ctx context.Context, cpID int32) (*ddl.GpCpMaterial, error)
+	GetMaterialByCPID(ctx context.Context, cpID int64) (*ddl.GpCpMaterial, error)
+}
+
+type ICPRepo interface {
+	CreateCP(ctx context.Context, cp *ddl.GpCp) error
+	GetCPByID(ctx context.Context, cpID int64) (*ddl.GpCp, error)
+	UpdateCP(ctx context.Context, cpID int64, updates map[string]interface{}) error
 }

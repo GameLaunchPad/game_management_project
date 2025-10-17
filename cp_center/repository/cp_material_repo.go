@@ -7,10 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// 注意：我们已经将 ICPMaterialRepo 接口的定义移至 interfaces.go 文件中。
-// 这个文件现在只负责接口的具体实现。
-
-// cpMaterialRepoImpl 是 ICPMaterialRepo 的 GORM 实现
 type cpMaterialRepoImpl struct {
 	db *gorm.DB
 }
@@ -22,7 +18,7 @@ func NewCPMaterialRepo(db *gorm.DB) ICPMaterialRepo {
 }
 
 // GetMaterialByCPID 实现了接口中定义的方法
-func (r *cpMaterialRepoImpl) GetMaterialByCPID(ctx context.Context, cpID int32) (*ddl.GpCpMaterial, error) {
+func (r *cpMaterialRepoImpl) GetMaterialByCPID(ctx context.Context, cpID int64) (*ddl.GpCpMaterial, error) {
 	var material ddl.GpCpMaterial
 	err := r.db.WithContext(ctx).Where("cp_id = ?", cpID).First(&material).Error
 	if err != nil {

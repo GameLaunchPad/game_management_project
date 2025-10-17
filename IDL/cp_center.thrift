@@ -77,6 +77,7 @@ struct ReviewCPMaterialResponse {
 
 struct GetCPMaterialRequest {
     1: i64 CpID
+    2: i64 MaterialID
 }
 
 struct GetCPMaterialResponse {

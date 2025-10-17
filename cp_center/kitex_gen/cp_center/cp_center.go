@@ -480,7 +480,8 @@ var fieldIDToName_UpdateCPMaterialResponse = map[int16]string{
 type ReviewCPMaterialRequest struct {
 	CpID          int64         `thrift:"CpID,1" frugal:"1,default,i64" json:"CpID"`
 	MaterialID    int64         `thrift:"MaterialID,2" frugal:"2,default,i64" json:"MaterialID"`
-	ReviewResult_ ReviewResult_ `thrift:"review_result,3" frugal:"3,default,ReviewResult_" json:"review_result"`
+	ReviewResult_ ReviewResult_ `thrift:"ReviewResult,3" frugal:"3,default,ReviewResult_" json:"ReviewResult"`
+	ReviewRemark  *ReviewRemark `thrift:"ReviewRemark,4" frugal:"4,default,ReviewRemark" json:"ReviewRemark"`
 }
 
 func NewReviewCPMaterialRequest() *ReviewCPMaterialRequest {
@@ -501,6 +502,15 @@ func (p *ReviewCPMaterialRequest) GetMaterialID() (v int64) {
 func (p *ReviewCPMaterialRequest) GetReviewResult_() (v ReviewResult_) {
 	return p.ReviewResult_
 }
+
+var ReviewCPMaterialRequest_ReviewRemark_DEFAULT *ReviewRemark
+
+func (p *ReviewCPMaterialRequest) GetReviewRemark() (v *ReviewRemark) {
+	if !p.IsSetReviewRemark() {
+		return ReviewCPMaterialRequest_ReviewRemark_DEFAULT
+	}
+	return p.ReviewRemark
+}
 func (p *ReviewCPMaterialRequest) SetCpID(val int64) {
 	p.CpID = val
 }
@@ -509,6 +519,13 @@ func (p *ReviewCPMaterialRequest) SetMaterialID(val int64) {
 }
 func (p *ReviewCPMaterialRequest) SetReviewResult_(val ReviewResult_) {
 	p.ReviewResult_ = val
+}
+func (p *ReviewCPMaterialRequest) SetReviewRemark(val *ReviewRemark) {
+	p.ReviewRemark = val
+}
+
+func (p *ReviewCPMaterialRequest) IsSetReviewRemark() bool {
+	return p.ReviewRemark != nil
 }
 
 func (p *ReviewCPMaterialRequest) String() string {
@@ -521,7 +538,64 @@ func (p *ReviewCPMaterialRequest) String() string {
 var fieldIDToName_ReviewCPMaterialRequest = map[int16]string{
 	1: "CpID",
 	2: "MaterialID",
-	3: "review_result",
+	3: "ReviewResult",
+	4: "ReviewRemark",
+}
+
+type ReviewRemark struct {
+	Remark     string `thrift:"Remark,1" frugal:"1,default,string" json:"Remark"`
+	Operator   string `thrift:"Operator,2" frugal:"2,default,string" json:"Operator"`
+	ReviewTime int64  `thrift:"ReviewTime,3" frugal:"3,default,i64" json:"ReviewTime"`
+	Meta       string `thrift:"Meta,4" frugal:"4,default,string" json:"Meta"`
+}
+
+func NewReviewRemark() *ReviewRemark {
+	return &ReviewRemark{}
+}
+
+func (p *ReviewRemark) InitDefault() {
+}
+
+func (p *ReviewRemark) GetRemark() (v string) {
+	return p.Remark
+}
+
+func (p *ReviewRemark) GetOperator() (v string) {
+	return p.Operator
+}
+
+func (p *ReviewRemark) GetReviewTime() (v int64) {
+	return p.ReviewTime
+}
+
+func (p *ReviewRemark) GetMeta() (v string) {
+	return p.Meta
+}
+func (p *ReviewRemark) SetRemark(val string) {
+	p.Remark = val
+}
+func (p *ReviewRemark) SetOperator(val string) {
+	p.Operator = val
+}
+func (p *ReviewRemark) SetReviewTime(val int64) {
+	p.ReviewTime = val
+}
+func (p *ReviewRemark) SetMeta(val string) {
+	p.Meta = val
+}
+
+func (p *ReviewRemark) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReviewRemark(%+v)", *p)
+}
+
+var fieldIDToName_ReviewRemark = map[int16]string{
+	1: "Remark",
+	2: "Operator",
+	3: "ReviewTime",
+	4: "Meta",
 }
 
 type ReviewCPMaterialResponse struct {
@@ -563,7 +637,8 @@ var fieldIDToName_ReviewCPMaterialResponse = map[int16]string{
 }
 
 type GetCPMaterialRequest struct {
-	CpID int64 `thrift:"CpID,1" frugal:"1,default,i64" json:"CpID"`
+	CpID       int64 `thrift:"CpID,1" frugal:"1,default,i64" json:"CpID"`
+	MaterialID int64 `thrift:"MaterialID,2" frugal:"2,default,i64" json:"MaterialID"`
 }
 
 func NewGetCPMaterialRequest() *GetCPMaterialRequest {
@@ -576,8 +651,15 @@ func (p *GetCPMaterialRequest) InitDefault() {
 func (p *GetCPMaterialRequest) GetCpID() (v int64) {
 	return p.CpID
 }
+
+func (p *GetCPMaterialRequest) GetMaterialID() (v int64) {
+	return p.MaterialID
+}
 func (p *GetCPMaterialRequest) SetCpID(val int64) {
 	p.CpID = val
+}
+func (p *GetCPMaterialRequest) SetMaterialID(val int64) {
+	p.MaterialID = val
 }
 
 func (p *GetCPMaterialRequest) String() string {
@@ -589,6 +671,7 @@ func (p *GetCPMaterialRequest) String() string {
 
 var fieldIDToName_GetCPMaterialRequest = map[int16]string{
 	1: "CpID",
+	2: "MaterialID",
 }
 
 type GetCPMaterialResponse struct {
