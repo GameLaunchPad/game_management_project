@@ -56,7 +56,7 @@ func (mr *MockICPMaterialRepoMockRecorder) CreateMaterial(ctx, material any) *go
 }
 
 // GetMaterialByCPID mocks base method.
-func (m *MockICPMaterialRepo) GetMaterialByCPID(ctx context.Context, cpID int32) (*ddl.GpCpMaterial, error) {
+func (m *MockICPMaterialRepo) GetMaterialByCPID(ctx context.Context, cpID int64) (*ddl.GpCpMaterial, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMaterialByCPID", ctx, cpID)
 	ret0, _ := ret[0].(*ddl.GpCpMaterial)
@@ -98,4 +98,71 @@ func (m *MockICPMaterialRepo) UpdateMaterial(ctx context.Context, materialID int
 func (mr *MockICPMaterialRepoMockRecorder) UpdateMaterial(ctx, materialID, updates any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMaterial", reflect.TypeOf((*MockICPMaterialRepo)(nil).UpdateMaterial), ctx, materialID, updates)
+}
+
+// MockICPRepo is a mock of ICPRepo interface.
+type MockICPRepo struct {
+	ctrl     *gomock.Controller
+	recorder *MockICPRepoMockRecorder
+	isgomock struct{}
+}
+
+// MockICPRepoMockRecorder is the mock recorder for MockICPRepo.
+type MockICPRepoMockRecorder struct {
+	mock *MockICPRepo
+}
+
+// NewMockICPRepo creates a new mock instance.
+func NewMockICPRepo(ctrl *gomock.Controller) *MockICPRepo {
+	mock := &MockICPRepo{ctrl: ctrl}
+	mock.recorder = &MockICPRepoMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockICPRepo) EXPECT() *MockICPRepoMockRecorder {
+	return m.recorder
+}
+
+// CreateCP mocks base method.
+func (m *MockICPRepo) CreateCP(ctx context.Context, cp *ddl.GpCp) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCP", ctx, cp)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCP indicates an expected call of CreateCP.
+func (mr *MockICPRepoMockRecorder) CreateCP(ctx, cp any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCP", reflect.TypeOf((*MockICPRepo)(nil).CreateCP), ctx, cp)
+}
+
+// GetCPByID mocks base method.
+func (m *MockICPRepo) GetCPByID(ctx context.Context, cpID int64) (*ddl.GpCp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCPByID", ctx, cpID)
+	ret0, _ := ret[0].(*ddl.GpCp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCPByID indicates an expected call of GetCPByID.
+func (mr *MockICPRepoMockRecorder) GetCPByID(ctx, cpID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCPByID", reflect.TypeOf((*MockICPRepo)(nil).GetCPByID), ctx, cpID)
+}
+
+// UpdateCP mocks base method.
+func (m *MockICPRepo) UpdateCP(ctx context.Context, cpID int64, updates map[string]any) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCP", ctx, cpID, updates)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCP indicates an expected call of UpdateCP.
+func (mr *MockICPRepoMockRecorder) UpdateCP(ctx, cpID, updates any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCP", reflect.TypeOf((*MockICPRepo)(nil).UpdateCP), ctx, cpID, updates)
 }
