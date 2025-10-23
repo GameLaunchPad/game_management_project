@@ -4,160 +4,282 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/GameLaunchPad/game_management_project/cp_center/dao/ddl"
 	"github.com/GameLaunchPad/game_management_project/cp_center/handler"
+	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/common"
 	"github.com/GameLaunchPad/game_management_project/cp_center/kitex_gen/cp_center"
-	mock_repo "github.com/GameLaunchPad/game_management_project/cp_center/repository/mocks"
+	"github.com/GameLaunchPad/game_management_project/cp_center/repository/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"gorm.io/gorm"
 )
 
-func TestReviewCPMaterial(t *testing.T) {
-	ctx := context.Background()
-	existingMaterial := &ddl.GpCpMaterial{Id: 1, CpId: 123, Status: 2} // 假设原始状态是审核中
+// mustReviewRemark 是一个辅助函数，用于创建 ReviewRemark 指针
+func mustReviewRemark(remark string, operator string) *cp_center.ReviewRemark {
+	return &cp_center.ReviewRemark{
+		Remark:   remark,
+		Operator: operator,
+	}
+}
 
-	// 测试场景 1: 成功审核通过
-	t.Run("Success - Review Pass", func(t *testing.T) {
+// updateMapMatcher 是一个 gomock 匹配器，用于验证更新 map 的内容
+type updateMapMatcher struct {
+	expectedStatus   int
+	expectedRemark   string
+	expectedOperator string
+}
+
+// NewUpdateMapMatcher 创建一个新的匹配器
+func NewUpdateMapMatcher(status int, remark, operator string) gomock.Matcher {
+	return &updateMapMatcher{
+		expectedStatus:   status,
+		expectedRemark:   remark,
+		expectedOperator: operator,
+	}
+}
+
+// Matches 检查传入的 map 是否符合预期
+func (m *updateMapMatcher) Matches(x interface{}) bool {
+	updates, ok := x.(map[string]interface{})
+	if !ok {
+		return false
+	}
+
+	status, ok := updates["status"].(int)
+	if !ok || status != m.expectedStatus {
+		return false
+	}
+
+	remark, ok := updates["review_comment"].(string)
+	if !ok || remark != m.expectedRemark {
+		return false
+	}
+
+	operator, ok := updates["operator"].(string)
+	if !ok || operator != m.expectedOperator {
+		return false
+	}
+
+	_, ok = updates["modify_ts"].(time.Time)
+	return ok // 确保 modify_ts 字段存在且类型正确
+}
+
+// String 描述了匹配器
+func (m *updateMapMatcher) String() string {
+	return "is an update map with correct status, remark, and operator"
+}
+
+func TestCPMaterialHandler_ReviewCPMaterial(t *testing.T) {
+	type testHandler struct {
+		*handler.CPMaterialHandler
+		MockMaterialRepo *mocks.MockICPMaterialRepo
+		MockCPRepo       *mocks.MockICPRepo // 添加 MockCPRepo
+	}
+
+	// 辅助函数来构建 handler 和 mock
+	setup := func(t *testing.T) (*testHandler, *gomock.Controller) {
 		ctrl := gomock.NewController(t)
-		mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-		h := handler.NewCPMaterialHandler(mockRepo)
+		mockMaterialRepo := mocks.NewMockICPMaterialRepo(ctrl)
+		mockCPRepo := mocks.NewMockICPRepo(ctrl) // 创建 MockCPRepo
 
-		req := &cp_center.ReviewCPMaterialRequest{
-			MaterialID:    1,
-			ReviewResult_: cp_center.ReviewResult__Pass,
-		}
+		// 传递两个 mock 依赖
+		realHandler := handler.NewCPMaterialHandler(mockMaterialRepo, mockCPRepo)
 
-		// --- 设定 mock 预期 ---
-		// 1. 期望 GetMaterialByID 被调用，且成功返回一个存在的素材
-		mockRepo.EXPECT().GetMaterialByID(ctx, req.MaterialID).Return(existingMaterial, nil).Times(1)
-		// 2. 期望 UpdateMaterial 被调用，且成功更新了 1 行
-		mockRepo.EXPECT().UpdateMaterial(ctx, req.MaterialID, gomock.Any()).Return(int64(1), nil).Times(1)
+		return &testHandler{
+			CPMaterialHandler: realHandler,
+			MockMaterialRepo:  mockMaterialRepo,
+			MockCPRepo:        mockCPRepo, // 存储 MockCPRepo
+		}, ctrl
+	}
 
-		// --- 执行被测函数 ---
-		resp, err := h.ReviewCPMaterial(ctx, req)
+	// 预期成功响应
+	successResp := &cp_center.ReviewCPMaterialResponse{
+		BaseResp: &common.BaseResp{
+			Code: "0",
+			Msg:  "success",
+		},
+	}
 
-		// --- 断言结果 ---
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
-		assert.Equal(t, "0", resp.BaseResp.Code)
-	})
+	// 定义测试用例
+	tests := []struct {
+		name      string
+		req       *cp_center.ReviewCPMaterialRequest
+		mockSetup func(mockRepo *mocks.MockICPMaterialRepo) // mockSetup 保持不变，因为 ReviewCPMaterial 只用到了 MaterialRepo
+		want      *cp_center.ReviewCPMaterialResponse
+		wantErr   assert.ErrorAssertionFunc
+		errMsg    string
+	}{
+		{
+			name: "Error: Invalid MaterialID",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    0, // 无效ID
+				ReviewResult_: cp_center.ReviewResult__Pass,
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 期望没有数据库调用
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "invalid parameter: material_id is required",
+		},
+		{
+			name: "Error: Unset ReviewResult",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    1,
+				ReviewResult_: cp_center.ReviewResult__Unset, // 无效结果
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 期望没有数据库调用
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "invalid parameter: review_result must be Pass or Reject",
+		},
+		{
+			name: "Error: Material Not Found",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    404,
+				ReviewResult_: cp_center.ReviewResult__Pass,
+				ReviewRemark:  mustReviewRemark("test", "admin"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(404)).
+					Return(nil, gorm.ErrRecordNotFound)
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "material not found",
+		},
+		{
+			name: "Error: GetMaterialByID DB Error",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    500,
+				ReviewResult_: cp_center.ReviewResult__Pass,
+				ReviewRemark:  mustReviewRemark("test", "admin"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(500)).
+					Return(nil, errors.New("db connection error"))
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "db connection error",
+		},
+		{
+			name: "Success: Review Pass",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    1,
+				ReviewResult_: cp_center.ReviewResult__Pass,
+				ReviewRemark:  mustReviewRemark("Looks good", "admin-pass"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 1. Get
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(1)).
+					Return(&ddl.GpCpMaterial{Id: 1, CpId: 10}, nil)
 
-	// 测试场景 2: 成功审核拒绝
-	t.Run("Success - Review Reject", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-		h := handler.NewCPMaterialHandler(mockRepo)
+				// 2. Update
+				matcher := NewUpdateMapMatcher(3, "Looks good", "admin-pass")
+				mockRepo.EXPECT().
+					UpdateMaterial(gomock.Any(), int64(1), matcher).
+					Return(int64(1), nil) // 1 row affected
+			},
+			want:    successResp,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Success: Review Reject",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    2,
+				ReviewResult_: cp_center.ReviewResult__Reject,
+				ReviewRemark:  mustReviewRemark("Missing info", "admin-reject"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 1. Get
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(2)).
+					Return(&ddl.GpCpMaterial{Id: 2, CpId: 11}, nil)
 
-		req := &cp_center.ReviewCPMaterialRequest{
-			MaterialID:    1,
-			ReviewResult_: cp_center.ReviewResult__Reject,
-		}
+				// 2. Update
+				matcher := NewUpdateMapMatcher(4, "Missing info", "admin-reject")
+				mockRepo.EXPECT().
+					UpdateMaterial(gomock.Any(), int64(2), matcher).
+					Return(int64(1), nil) // 1 row affected
+			},
+			want:    successResp,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Error: UpdateMaterial DB Error",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    3,
+				ReviewResult_: cp_center.ReviewResult__Pass,
+				ReviewRemark:  mustReviewRemark("test", "admin"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 1. Get
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(3)).
+					Return(&ddl.GpCpMaterial{Id: 3}, nil)
 
-		// --- 设定 mock 预期 ---
-		mockRepo.EXPECT().GetMaterialByID(ctx, req.MaterialID).Return(existingMaterial, nil).Times(1)
-		mockRepo.EXPECT().UpdateMaterial(ctx, req.MaterialID, gomock.Any()).Return(int64(1), nil).Times(1)
+				// 2. Update (fails)
+				mockRepo.EXPECT().
+					UpdateMaterial(gomock.Any(), int64(3), gomock.Any()).
+					Return(int64(0), errors.New("update failed error"))
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "update failed error",
+		},
+		{
+			name: "Error: UpdateMaterial Zero Rows Affected",
+			req: &cp_center.ReviewCPMaterialRequest{
+				MaterialID:    4,
+				ReviewResult_: cp_center.ReviewResult__Pass,
+				ReviewRemark:  mustReviewRemark("test", "admin"),
+			},
+			mockSetup: func(mockRepo *mocks.MockICPMaterialRepo) {
+				// 1. Get
+				mockRepo.EXPECT().
+					GetMaterialByID(gomock.Any(), int64(4)).
+					Return(&ddl.GpCpMaterial{Id: 4}, nil)
 
-		// --- 执行被测函数 ---
-		resp, err := h.ReviewCPMaterial(ctx, req)
+				// 2. Update (returns 0 rows)
+				mockRepo.EXPECT().
+					UpdateMaterial(gomock.Any(), int64(4), gomock.Any()).
+					Return(int64(0), nil) // 0 rows affected
+			},
+			want:    nil,
+			wantErr: assert.Error,
+			errMsg:  "update failed, zero rows affected",
+		},
+	}
 
-		// --- 断言结果 ---
-		assert.NoError(t, err)
-		assert.NotNil(t, resp)
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h, ctrl := setup(t)
+			defer ctrl.Finish()
 
-	// 测试场景 3: 素材不存在
-	t.Run("Failure - Material Not Found", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-		h := handler.NewCPMaterialHandler(mockRepo)
+			// 设置 mock 预期
+			if tt.mockSetup != nil {
+				tt.mockSetup(h.MockMaterialRepo)
+			}
 
-		req := &cp_center.ReviewCPMaterialRequest{MaterialID: 999, ReviewResult_: cp_center.ReviewResult__Pass}
+			// 执行被测函数
+			got, err := h.ReviewCPMaterial(context.Background(), tt.req)
 
-		// --- 设定 mock 预期 ---
-		// 期望 GetMaterialByID 返回 gorm.ErrRecordNotFound
-		mockRepo.EXPECT().GetMaterialByID(ctx, req.MaterialID).Return(nil, gorm.ErrRecordNotFound).Times(1)
-		// 不期望 UpdateMaterial 被调用
+			// 验证错误
+			tt.wantErr(t, err)
+			if err != nil {
+				assert.Equal(t, tt.errMsg, err.Error(), "Error message mismatch")
+			}
 
-		// --- 执行被测函数 ---
-		resp, err := h.ReviewCPMaterial(ctx, req)
-
-		// --- 断言结果 ---
-		assert.Nil(t, resp)
-		assert.Error(t, err)
-		assert.EqualError(t, err, "material not found")
-	})
-
-	// 测试场景 4: 更新数据库失败
-	t.Run("Failure - Update Database Error", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-		h := handler.NewCPMaterialHandler(mockRepo)
-
-		req := &cp_center.ReviewCPMaterialRequest{MaterialID: 1, ReviewResult_: cp_center.ReviewResult__Pass}
-		dbError := errors.New("update failed")
-
-		// --- 设定 mock 预期 ---
-		mockRepo.EXPECT().GetMaterialByID(ctx, req.MaterialID).Return(existingMaterial, nil).Times(1)
-		// 期望 UpdateMaterial 调用失败
-		mockRepo.EXPECT().UpdateMaterial(ctx, req.MaterialID, gomock.Any()).Return(int64(0), dbError).Times(1)
-
-		// --- 执行被测函数 ---
-		resp, err := h.ReviewCPMaterial(ctx, req)
-
-		// --- 断言结果 ---
-		assert.Nil(t, resp)
-		assert.Error(t, err)
-		assert.ErrorIs(t, err, dbError)
-	})
-
-	// 测试场景 5: 更新影响 0 行
-	t.Run("Failure - Update Affects Zero Rows", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-		h := handler.NewCPMaterialHandler(mockRepo)
-
-		req := &cp_center.ReviewCPMaterialRequest{MaterialID: 1, ReviewResult_: cp_center.ReviewResult__Pass}
-
-		// --- 设定 mock 预期 ---
-		mockRepo.EXPECT().GetMaterialByID(ctx, req.MaterialID).Return(existingMaterial, nil).Times(1)
-		// 期望 UpdateMaterial 返回成功，但影响行数为 0
-		mockRepo.EXPECT().UpdateMaterial(ctx, req.MaterialID, gomock.Any()).Return(int64(0), nil).Times(1)
-
-		// --- 执行被测函数 ---
-		resp, err := h.ReviewCPMaterial(ctx, req)
-
-		// --- 断言结果 ---
-		assert.Nil(t, resp)
-		assert.Error(t, err)
-		assert.EqualError(t, err, "update failed, zero rows affected")
-	})
-
-	// 测试场景 6: 无效参数
-	t.Run("Failure - Invalid Parameters", func(t *testing.T) {
-		// 子测试用例
-		testCases := map[string]*cp_center.ReviewCPMaterialRequest{
-			"MaterialID is zero":    {MaterialID: 0, ReviewResult_: cp_center.ReviewResult__Pass},
-			"ReviewResult is unset": {MaterialID: 1, ReviewResult_: cp_center.ReviewResult__Unset},
-		}
-
-		for name, req := range testCases {
-			t.Run(name, func(t *testing.T) {
-				ctrl := gomock.NewController(t)
-				mockRepo := mock_repo.NewMockICPMaterialRepo(ctrl)
-				h := handler.NewCPMaterialHandler(mockRepo)
-
-				// --- 设定 mock 预期 ---
-				// 参数校验失败，不应该有任何数据库调用
-
-				// --- 执行被测函数 ---
-				resp, err := h.ReviewCPMaterial(ctx, req)
-
-				// --- 断言结果 ---
-				assert.Nil(t, resp)
-				assert.Error(t, err)
-			})
-		}
-	})
+			// 验证响应
+			assert.Equal(t, tt.want, got, "Response mismatch")
+		})
+	}
 }
