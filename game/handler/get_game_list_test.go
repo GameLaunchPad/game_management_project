@@ -137,3 +137,134 @@ func TestGetGameList_DaoError(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, "500", resp.BaseResp.Code) // 期望返回内部服务器错误码
 }
+
+// TestGetGameList_InvalidPageNum 测试无效的 PageNum（应该使用默认值 1）
+func TestGetGameList_InvalidPageNum(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	// 期望使用默认值 1
+	mockGameDAO.EXPECT().
+		GetGameList(gomock.Any(), gomock.Any(), 1, 10).
+		Return([]*dao.GameWithVersionStatus{}, int64(0), nil).
+		Times(1)
+
+	req := &game.GetGameListRequest{
+		PageNum:  0, // 无效值，应该使用默认值 1
+		PageSize: 10,
+	}
+
+	resp, err := GetGameList(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "200", resp.BaseResp.Code)
+}
+
+// TestGetGameList_NegativePageNum 测试负数的 PageNum（应该使用默认值 1）
+func TestGetGameList_NegativePageNum(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	// 期望使用默认值 1
+	mockGameDAO.EXPECT().
+		GetGameList(gomock.Any(), gomock.Any(), 1, 10).
+		Return([]*dao.GameWithVersionStatus{}, int64(0), nil).
+		Times(1)
+
+	req := &game.GetGameListRequest{
+		PageNum:  -1, // 负数，应该使用默认值 1
+		PageSize: 10,
+	}
+
+	resp, err := GetGameList(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "200", resp.BaseResp.Code)
+}
+
+// TestGetGameList_InvalidPageSize 测试无效的 PageSize（应该使用默认值 10）
+func TestGetGameList_InvalidPageSize(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	// 期望使用默认值 10
+	mockGameDAO.EXPECT().
+		GetGameList(gomock.Any(), gomock.Any(), 1, 10).
+		Return([]*dao.GameWithVersionStatus{}, int64(0), nil).
+		Times(1)
+
+	req := &game.GetGameListRequest{
+		PageNum:  1,
+		PageSize: 0, // 无效值，应该使用默认值 10
+	}
+
+	resp, err := GetGameList(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "200", resp.BaseResp.Code)
+}
+
+// TestGetGameList_NegativePageSize 测试负数的 PageSize（应该使用默认值 10）
+func TestGetGameList_NegativePageSize(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	// 期望使用默认值 10
+	mockGameDAO.EXPECT().
+		GetGameList(gomock.Any(), gomock.Any(), 1, 10).
+		Return([]*dao.GameWithVersionStatus{}, int64(0), nil).
+		Times(1)
+
+	req := &game.GetGameListRequest{
+		PageNum:  1,
+		PageSize: -1, // 负数，应该使用默认值 10
+	}
+
+	resp, err := GetGameList(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "200", resp.BaseResp.Code)
+}
+
+// TestGetGameList_NoFilter 测试没有 Filter 的情况（应该使用 nil）
+func TestGetGameList_NoFilter(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	// 期望 filterText 为 nil
+	mockGameDAO.EXPECT().
+		GetGameList(gomock.Any(), nil, 1, 10).
+		Return([]*dao.GameWithVersionStatus{}, int64(0), nil).
+		Times(1)
+
+	req := &game.GetGameListRequest{
+		PageNum:  1,
+		PageSize: 10,
+		// Filter 未设置
+	}
+
+	resp, err := GetGameList(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "200", resp.BaseResp.Code)
+}
