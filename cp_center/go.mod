@@ -1,6 +1,6 @@
 module github.com/GameLaunchPad/game_management_project/cp_center
 
-go 1.20
+go 1.24.0
 
 require (
 	github.com/cloudwego/gopkg v0.1.6

@@ -12,7 +12,12 @@
 
 运行覆盖率分析工具：
 ```bash
-bash scripts/analyze_coverage.sh
+# 查看HTML覆盖率报告（已包含总覆盖率信息）
+open game/handler_coverage.html
+
+# 或者查看命令行覆盖率报告
+cd game
+go tool cover -func=coverage.out | grep "handler/"
 ```
 
 或者手动查看：
@@ -200,7 +205,7 @@ open game/handler_coverage.html
 
 ## 相关工具
 
-- **覆盖率分析**：`bash scripts/analyze_coverage.sh`
+- **覆盖率分析**：查看HTML报告 `game/handler_coverage.html`（已包含总覆盖率信息）
 - **查看HTML报告**：`game/handler_coverage.html`
 - **查看函数覆盖率**：`go tool cover -func=game/coverage.out`
 
@@ -224,7 +229,8 @@ open game/handler_coverage.html
 
 2. **分析当前覆盖率**：
    ```bash
-   bash scripts/analyze_coverage.sh
+   # 查看HTML覆盖率报告（已包含总覆盖率信息）
+   open game/handler_coverage.html
    ```
 
 3. **添加测试用例**：

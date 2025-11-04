@@ -506,7 +506,7 @@ func TestReviewGameVersion_OtherError(t *testing.T) {
 1. **复制测试用例模板**：从上面的代码示例中复制对应的测试用例
 2. **调整导入**：确保导入必要的包（gomock, assert 等）
 3. **运行测试**：确保测试能够编译和运行
-4. **验证覆盖率**：运行 `bash scripts/analyze_coverage.sh` 查看覆盖率变化
+4. **验证覆盖率**：查看HTML报告 `game/handler_coverage.html`（已包含总覆盖率信息）
 5. **检查覆盖率报告**：打开 `game/handler_coverage.html` 确认未覆盖的代码已被覆盖
 
 ## 运行测试并查看覆盖率
@@ -516,7 +516,8 @@ func TestReviewGameVersion_OtherError(t *testing.T) {
 bash scripts/run_tests_simple.sh
 
 # 查看覆盖率分析
-bash scripts/analyze_coverage.sh
+# 查看HTML覆盖率报告（已包含总覆盖率信息）
+open game/handler_coverage.html
 
 # 查看HTML覆盖率报告
 open game/handler_coverage.html

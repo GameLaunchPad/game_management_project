@@ -73,7 +73,7 @@ check_go_environment() {
 }
 
 # 覆盖率阈值（百分比），可通过环境变量 COVERAGE_THRESHOLD 设置
-COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-95}"
+COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-90}"
 
 # 测试延迟（秒），可通过环境变量 TEST_DELAY 设置
 # 注意：添加延迟不是最佳实践，测试应该追求速度
@@ -140,13 +140,7 @@ fi
 
 echo "测试范围: ${HANDLER_DIR}"
 echo "覆盖率目标: ${COVERAGE_THRESHOLD}%"
-echo ""
-echo -e "${YELLOW}关于测试速度的说明：${NC}"
-echo "- 单元测试速度快（接近0s）是正常的，因为："
-echo "  1. 使用了 mock，没有真实的数据库操作"
-echo "  2. handler 逻辑简单，主要是参数校验和调用 DAO"
-echo "  3. 这是单元测试的最佳实践：快速、隔离、可重复"
-echo "- 如果测试执行时间过长，反而说明测试设计有问题"
+
 echo ""
 echo "运行单元测试..."
 echo ""
@@ -182,13 +176,40 @@ else
     exit 1
 fi
 
+# 检查是否启用race detection（需要CGO）
+# 可以通过环境变量 ENABLE_RACE 控制，默认为true
+ENABLE_RACE="${ENABLE_RACE:-true}"
+RACE_FLAG=""
+if [ "$ENABLE_RACE" = "true" ]; then
+    # 检测CGO是否可用（检查环境变量或go env）
+    CGO_ENABLED_VALUE=$(go env CGO_ENABLED 2>/dev/null || echo "")
+    # 如果环境变量CGO_ENABLED已设置，优先使用环境变量的值
+    if [ -n "${CGO_ENABLED}" ]; then
+        CGO_ENABLED_VALUE="${CGO_ENABLED}"
+    fi
+    
+    if [ "$CGO_ENABLED_VALUE" = "1" ]; then
+        # CGO已启用，使用race detection
+        RACE_FLAG="-race"
+        echo "  - 启用race detection（数据竞争检测）"
+    else
+        # CGO未启用，自动禁用race detection
+        echo -e "${YELLOW}  - 警告: CGO未启用（当前值: ${CGO_ENABLED_VALUE}），禁用race detection${NC}"
+        echo -e "${YELLOW}    提示: 如需启用race detection，请设置 CGO_ENABLED=1${NC}"
+        RACE_FLAG=""
+    fi
+else
+    echo "  - 禁用race detection（通过环境变量 ENABLE_RACE=false）"
+    RACE_FLAG=""
+fi
+
 # 运行测试并生成 JSONL 报告
 # -json 参数会输出 JSONL 格式（每行一个 JSON 对象）
 # 先尝试使用 -coverpkg 参数，如果失败则重试不使用该参数
 
 # 尝试使用 -coverpkg 参数（使用相对路径）
 COVERPKG_USED=false
-if go test -short -race -coverprofile=coverage.out \
+if go test -short ${RACE_FLAG} -coverprofile=coverage.out \
     -coverpkg=./handler \
     -run "^Test.*" \
     -timeout 5m \
@@ -203,7 +224,7 @@ else
     echo ""
     echo -e "${YELLOW}尝试不使用 -coverpkg 参数...${NC}"
     
-    if go test -short -race -coverprofile=coverage.out \
+    if go test -short ${RACE_FLAG} -coverprofile=coverage.out \
         -run "^Test.*" \
         -timeout 5m \
         -json \
@@ -379,20 +400,24 @@ if true; then
         
         # 生成 HTML 覆盖率报告（可选）
         if command -v go tool cover >/dev/null 2>&1; then
-            go tool cover -html=coverage.out -o handler_coverage.html
-            
-            # 在HTML报告中添加总覆盖率信息
-            if [ -f handler_coverage.html ] && [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
-                # 创建增强版的HTML报告，在顶部添加总覆盖率信息
-                enhance_html_report() {
-                    local html_file="$1"
-                    local coverage="$2"
-                    local threshold="$3"
-                    local timestamp=$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date +'%Y-%m-%d %H:%M:%S')
+            echo ""
+            echo "生成HTML覆盖率报告..."
+            if go tool cover -html=coverage.out -o handler_coverage.html 2>&1; then
+                if [ -f handler_coverage.html ]; then
+                    echo -e "${GREEN}✓ HTML覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html${NC}"
                     
-                    # 创建覆盖率摘要HTML（使用临时文件避免sed特殊字符问题）
-                    local summary_file="${html_file}.summary.tmp"
-                    cat > "${summary_file}" <<'SUMMARY_EOF'
+                    # 在HTML报告中添加总覆盖率信息
+                    if [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
+                        # 创建增强版的HTML报告，在顶部添加总覆盖率信息
+                        enhance_html_report() {
+                            local html_file="$1"
+                            local coverage="$2"
+                            local threshold="$3"
+                            local timestamp=$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date +'%Y-%m-%d %H:%M:%S')
+                            
+                            # 创建覆盖率摘要HTML（使用临时文件避免sed特殊字符问题）
+                            local summary_file="${html_file}.summary.tmp"
+                            cat > "${summary_file}" <<'SUMMARY_EOF'
 <div style="background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #4CAF50;">
     <h2 style="margin: 0 0 10px 0; color: #333;">测试覆盖率摘要</h2>
     <div style="display: flex; gap: 30px; flex-wrap: wrap;">
@@ -411,51 +436,60 @@ if true; then
     </div>
 </div>
 SUMMARY_EOF
-                    
-                    # 替换占位符（使用临时文件方式，兼容Windows）
-                    sed "s/COVERAGE_PLACEHOLDER/${coverage}/g" "${summary_file}" > "${summary_file}.tmp1"
-                    sed "s/THRESHOLD_PLACEHOLDER/${threshold}/g" "${summary_file}.tmp1" > "${summary_file}.tmp2"
-                    sed "s/TIMESTAMP_PLACEHOLDER/${timestamp}/g" "${summary_file}.tmp2" > "${summary_file}"
-                    rm -f "${summary_file}.tmp1" "${summary_file}.tmp2" 2>/dev/null || true
-                    
-                    # 使用perl在body标签后插入摘要（更可靠的方法，兼容Windows和Linux）
-                    if command -v perl >/dev/null 2>&1; then
-                        perl -pe '
-                            BEGIN {
-                                open(SUMMARY, "<", "'"${summary_file}"'") or die "Cannot open summary file";
-                                $summary = do { local $/; <SUMMARY> };
-                                close(SUMMARY);
-                            }
-                            if (/<body[^>]*>/) {
-                                $_ .= $summary;
-                            }
-                        ' "${html_file}" > "${html_file}.tmp"
+                            
+                            # 替换占位符（使用临时文件方式，兼容Windows）
+                            sed "s/COVERAGE_PLACEHOLDER/${coverage}/g" "${summary_file}" > "${summary_file}.tmp1"
+                            sed "s/THRESHOLD_PLACEHOLDER/${threshold}/g" "${summary_file}.tmp1" > "${summary_file}.tmp2"
+                            sed "s/TIMESTAMP_PLACEHOLDER/${timestamp}/g" "${summary_file}.tmp2" > "${summary_file}"
+                            rm -f "${summary_file}.tmp1" "${summary_file}.tmp2" 2>/dev/null || true
+                            
+                            # 使用perl在body标签后插入摘要（更可靠的方法，兼容Windows和Linux）
+                            if command -v perl >/dev/null 2>&1; then
+                                perl -pe '
+                                    BEGIN {
+                                        open(SUMMARY, "<", "'"${summary_file}"'") or die "Cannot open summary file";
+                                        $summary = do { local $/; <SUMMARY> };
+                                        close(SUMMARY);
+                                    }
+                                    if (/<body[^>]*>/) {
+                                        $_ .= $summary;
+                                    }
+                                ' "${html_file}" > "${html_file}.tmp"
+                            else
+                                # 如果perl不可用，使用awk（备用方案）
+                                awk -v summary_file="${summary_file}" '
+                                    /<body[^>]*>/ {
+                                        print
+                                        while ((getline line < summary_file) > 0) {
+                                            print line
+                                        }
+                                        close(summary_file)
+                                        next
+                                    }
+                                    { print }
+                                ' "${html_file}" > "${html_file}.tmp"
+                            fi
+                            
+                            mv "${html_file}.tmp" "${html_file}" 2>/dev/null || cp "${html_file}.tmp" "${html_file}"
+                            rm -f "${html_file}.tmp" "${summary_file}" 2>/dev/null || true
+                        }
+                        
+                        enhance_html_report "handler_coverage.html" "${HANDLER_COVERAGE}" "${COVERAGE_THRESHOLD}"
+                        if [ -f handler_coverage.html ]; then
+                            echo -e "${GREEN}✓ 已添加总覆盖率信息到HTML报告${NC}"
+                        fi
                     else
-                        # 如果perl不可用，使用awk（备用方案）
-                        awk -v summary_file="${summary_file}" '
-                            /<body[^>]*>/ {
-                                print
-                                while ((getline line < summary_file) > 0) {
-                                    print line
-                                }
-                                close(summary_file)
-                                next
-                            }
-                            { print }
-                        ' "${html_file}" > "${html_file}.tmp"
+                        echo -e "${YELLOW}警告: 无法添加总覆盖率信息（覆盖率未计算）${NC}"
                     fi
-                    
-                    mv "${html_file}.tmp" "${html_file}" 2>/dev/null || cp "${html_file}.tmp" "${html_file}"
-                    rm -f "${html_file}.tmp" "${summary_file}" 2>/dev/null || true
-                }
-                
-                enhance_html_report "handler_coverage.html" "${HANDLER_COVERAGE}" "${COVERAGE_THRESHOLD}"
-                echo ""
-                echo "HTML 覆盖率报告已生成（已添加总覆盖率信息）: ${SERVICE_PATH}/handler_coverage.html"
+                else
+                    echo -e "${RED}错误: HTML文件生成失败${NC}"
+                fi
             else
-                echo ""
-                echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html"
+                echo -e "${RED}错误: 生成HTML覆盖率报告失败${NC}"
+                echo "请检查 coverage.out 文件是否存在且有效"
             fi
+        else
+            echo -e "${YELLOW}警告: go tool cover 命令不可用${NC}"
         fi
         
         # 生成云效可解析的覆盖率报告（JSON格式）

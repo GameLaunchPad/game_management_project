@@ -153,7 +153,8 @@ A:
 
 2. **运行覆盖率分析**：
    ```bash
-   bash scripts/analyze_coverage.sh
+   # 查看HTML覆盖率报告（已包含总覆盖率信息）
+   open game/handler_coverage.html
    ```
 
 3. **查看HTML报告**：打开 `game/handler_coverage.html` 查看未覆盖的代码行
