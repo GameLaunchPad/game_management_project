@@ -18,8 +18,65 @@ echo "=========================================="
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
+# 检查并设置 Go 环境
+check_go_environment() {
+    # 检查 Go 是否已安装
+    if ! command -v go &> /dev/null; then
+        echo -e "${RED}错误: 未找到 Go 命令${NC}"
+        echo ""
+        echo "请确保在流水线中已安装 Go 环境："
+        echo "1. 在测试步骤之前添加 '安装go' 步骤"
+        echo "2. 或者确保测试步骤继承了构建步骤的 Go 环境"
+        echo ""
+        echo "如果使用云效流水线，请检查："
+        echo "- Go 安装步骤是否在测试步骤之前执行"
+        echo "- 测试步骤是否与构建步骤在同一运行环境中"
+        echo ""
+        
+        # 尝试查找常见的 Go 安装路径
+        COMMON_GO_PATHS=(
+            "/usr/local/go/bin"
+            "/opt/go/bin"
+            "$HOME/go/bin"
+            "/usr/bin"
+        )
+        
+        echo "尝试查找 Go 安装路径..."
+        for path in "${COMMON_GO_PATHS[@]}"; do
+            if [ -f "${path}/go" ]; then
+                echo -e "${YELLOW}找到 Go: ${path}/go${NC}"
+                echo "尝试添加到 PATH..."
+                export PATH="${path}:${PATH}"
+                if command -v go &> /dev/null; then
+                    echo -e "${GREEN}✓ Go 环境已设置${NC}"
+                    return 0
+                fi
+            fi
+        done
+        
+        exit 1
+    fi
+    
+    # 显示 Go 版本信息
+    GO_VERSION=$(go version 2>/dev/null || echo "unknown")
+    echo "Go 环境检查: ${GO_VERSION}"
+    
+    # 检查 GOPATH 和 GOROOT（如果有）
+    if [ -n "$GOROOT" ]; then
+        echo "GOROOT: ${GOROOT}"
+    fi
+    if [ -n "$GOPATH" ]; then
+        echo "GOPATH: ${GOPATH}"
+    fi
+    
+    echo ""
+}
+
 # 覆盖率阈值（百分比），可通过环境变量 COVERAGE_THRESHOLD 设置
 COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-0}"
+
+# 检查 Go 环境
+check_go_environment
 
 # Game 服务路径
 SERVICE="game"
