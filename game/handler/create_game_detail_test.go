@@ -89,3 +89,35 @@ func TestCreateGameDetail_DaoError(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, "500", resp.BaseResp.Code)
 }
+
+// TestCreateGameDetail_NilGameDetail tests the failure case when GameDetail is nil
+func TestCreateGameDetail_NilGameDetail(t *testing.T) {
+	req := &game.CreateGameDetailRequest{
+		GameDetail: nil,
+	}
+
+	resp, err := CreateGameDetail(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "400", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "GameDetail or GameVersion is missing")
+}
+
+// TestCreateGameDetail_NilGameVersion tests the failure case when GameVersion is nil
+func TestCreateGameDetail_NilGameVersion(t *testing.T) {
+	req := &game.CreateGameDetailRequest{
+		GameDetail: &game.GameDetailWrite{
+			GameID:      0,
+			CpID:        1001,
+			GameVersion: nil,
+		},
+	}
+
+	resp, err := CreateGameDetail(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "400", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "GameDetail or GameVersion is missing")
+}

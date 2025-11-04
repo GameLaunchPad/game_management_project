@@ -204,3 +204,36 @@ open game/handler_coverage.html
 - **查看HTML报告**：`game/handler_coverage.html`
 - **查看函数覆盖率**：`go tool cover -func=game/coverage.out`
 
+## 测试用例改进指南
+
+详细的测试用例改进指南请参考：[TEST_CASE_IMPROVEMENT_GUIDE.md](./TEST_CASE_IMPROVEMENT_GUIDE.md)
+
+该文档包含：
+- ✅ 所有缺失的测试用例列表
+- ✅ 每个测试用例的完整代码示例
+- ✅ 测试用例的优先级
+- ✅ 添加测试用例的步骤说明
+
+## 快速开始
+
+1. **查看需要添加的测试用例**：
+   ```bash
+   # 查看详细指南
+   cat docs/TEST_CASE_IMPROVEMENT_GUIDE.md
+   ```
+
+2. **分析当前覆盖率**：
+   ```bash
+   bash scripts/analyze_coverage.sh
+   ```
+
+3. **添加测试用例**：
+   - 参考 `docs/TEST_CASE_IMPROVEMENT_GUIDE.md` 中的代码示例
+   - 从高优先级开始添加
+   - 每次添加后运行测试，查看覆盖率变化
+
+4. **验证覆盖率**：
+   ```bash
+   bash scripts/run_tests_simple.sh
+   ```
+

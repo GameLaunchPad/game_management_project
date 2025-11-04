@@ -144,17 +144,26 @@ A: 这是正常的，单元测试速度快是优点，原因：
 ### Q: 如何提升测试覆盖率？
 
 A: 
-1. **运行覆盖率分析**：
+1. **查看测试用例改进指南**（推荐）：
+   ```bash
+   # 查看详细的测试用例改进指南
+   cat docs/TEST_CASE_IMPROVEMENT_GUIDE.md
+   ```
+   该指南包含所有缺失的测试用例和完整代码示例
+
+2. **运行覆盖率分析**：
    ```bash
    bash scripts/analyze_coverage.sh
    ```
-2. **查看HTML报告**：打开 `game/handler_coverage.html` 查看未覆盖的代码行
-3. **添加测试用例**：为未覆盖的代码添加测试，重点关注：
-   - 错误处理分支
-   - 边界条件
-   - 空值检查
-   - 特殊状态/枚举值
-4. **查看详细指南**：参考 `docs/COVERAGE_IMPROVEMENT.md`
+
+3. **查看HTML报告**：打开 `game/handler_coverage.html` 查看未覆盖的代码行
+
+4. **添加测试用例**：
+   - 参考 `docs/TEST_CASE_IMPROVEMENT_GUIDE.md` 中的代码示例
+   - 从高优先级开始添加
+   - 每次添加后运行测试，查看覆盖率变化
+
+5. **查看详细指南**：参考 `docs/COVERAGE_IMPROVEMENT.md`
 
 ### Q: 遇到 "go: command not found" 错误怎么办？
 

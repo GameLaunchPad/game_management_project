@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/GameLaunchPad/game_management_project/game/dao/mock"
@@ -82,4 +83,89 @@ func TestUpdateGameDraft_FailWithZeroGameID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "400", resp.BaseResp.Code)
 	assert.Contains(t, resp.BaseResp.Msg, "GameID is required")
+}
+
+// TestUpdateGameDraft_NilGameDetail tests the failure case when GameDetail is nil
+func TestUpdateGameDraft_NilGameDetail(t *testing.T) {
+	req := &game.UpdateGameDraftRequest{
+		GameDetail: nil,
+	}
+
+	resp, err := UpdateGameDraft(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "400", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "GameDetail or GameVersion is missing")
+}
+
+// TestUpdateGameDraft_NilGameVersion tests the failure case when GameVersion is nil
+func TestUpdateGameDraft_NilGameVersion(t *testing.T) {
+	req := &game.UpdateGameDraftRequest{
+		GameDetail: &game.GameDetailWrite{
+			GameID:      12345,
+			CpID:        1001,
+			GameVersion: nil,
+		},
+	}
+
+	resp, err := UpdateGameDraft(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "400", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "GameDetail or GameVersion is missing")
+}
+
+// TestUpdateGameDraft_NegativeGameID tests the failure case when GameID is negative
+func TestUpdateGameDraft_NegativeGameID(t *testing.T) {
+	req := &game.UpdateGameDraftRequest{
+		GameDetail: &game.GameDetailWrite{
+			GameID: -1,
+			CpID:   1001,
+			GameVersion: &game.GameVersion{
+				GameName: "Test Game",
+			},
+		},
+	}
+
+	resp, err := UpdateGameDraft(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "400", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "GameID is required")
+}
+
+// TestUpdateGameDraft_OtherError tests the failure case when DAO returns other errors (not RecordNotFound)
+func TestUpdateGameDraft_OtherError(t *testing.T) {
+	setupIDGenerator()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGameDAO := mock.NewMockIGameDAO(ctrl)
+	GameDao = mockGameDAO
+
+	otherError := errors.New("database connection error")
+	mockGameDAO.EXPECT().
+		UpdateGameDraft(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(otherError).
+		Times(1)
+
+	req := &game.UpdateGameDraftRequest{
+		GameDetail: &game.GameDetailWrite{
+			GameID: 12345,
+			CpID:   1001,
+			GameVersion: &game.GameVersion{
+				GameName: "Test Game",
+			},
+		},
+	}
+
+	resp, err := UpdateGameDraft(context.Background(), req)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, "500", resp.BaseResp.Code)
+	assert.Contains(t, resp.BaseResp.Msg, "Internal Server Error")
 }
