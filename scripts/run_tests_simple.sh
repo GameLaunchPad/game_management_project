@@ -388,34 +388,65 @@ if true; then
                     local html_file="$1"
                     local coverage="$2"
                     local threshold="$3"
+                    local timestamp=$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date +'%Y-%m-%d %H:%M:%S')
                     
-                    # 读取原始HTML
-                    local html_content=$(cat "$html_file")
-                    
-                    # 在HTML头部添加覆盖率摘要
-                    local summary_html="
-<div style=\"background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #4CAF50;\">
-    <h2 style=\"margin: 0 0 10px 0; color: #333;\">测试覆盖率摘要</h2>
-    <div style=\"display: flex; gap: 30px; flex-wrap: wrap;\">
+                    # 创建覆盖率摘要HTML（使用临时文件避免sed特殊字符问题）
+                    local summary_file="${html_file}.summary.tmp"
+                    cat > "${summary_file}" <<'SUMMARY_EOF'
+<div style="background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #4CAF50;">
+    <h2 style="margin: 0 0 10px 0; color: #333;">测试覆盖率摘要</h2>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
         <div>
-            <strong style=\"color: #666;\">Handler目录覆盖率:</strong>
-            <span style=\"font-size: 24px; font-weight: bold; color: #4CAF50; margin-left: 10px;\">${coverage}%</span>
+            <strong style="color: #666;">Handler目录覆盖率:</strong>
+            <span style="font-size: 24px; font-weight: bold; color: #4CAF50; margin-left: 10px;">COVERAGE_PLACEHOLDER%</span>
         </div>
         <div>
-            <strong style=\"color: #666;\">覆盖率目标:</strong>
-            <span style=\"font-size: 18px; color: #333; margin-left: 10px;\">${threshold}%</span>
+            <strong style="color: #666;">覆盖率目标:</strong>
+            <span style="font-size: 18px; color: #333; margin-left: 10px;">THRESHOLD_PLACEHOLDER%</span>
         </div>
         <div>
-            <strong style=\"color: #666;\">生成时间:</strong>
-            <span style=\"color: #333; margin-left: 10px;\">$(date '+%Y-%m-%d %H:%M:%S')</span>
+            <strong style="color: #666;">生成时间:</strong>
+            <span style="color: #333; margin-left: 10px;">TIMESTAMP_PLACEHOLDER</span>
         </div>
     </div>
 </div>
-"
+SUMMARY_EOF
                     
-                    # 将摘要插入到body标签后
-                    echo "$html_content" | sed "s|<body>|<body>${summary_html}|" > "${html_file}.tmp"
-                    mv "${html_file}.tmp" "${html_file}"
+                    # 替换占位符（使用临时文件方式，兼容Windows）
+                    sed "s/COVERAGE_PLACEHOLDER/${coverage}/g" "${summary_file}" > "${summary_file}.tmp1"
+                    sed "s/THRESHOLD_PLACEHOLDER/${threshold}/g" "${summary_file}.tmp1" > "${summary_file}.tmp2"
+                    sed "s/TIMESTAMP_PLACEHOLDER/${timestamp}/g" "${summary_file}.tmp2" > "${summary_file}"
+                    rm -f "${summary_file}.tmp1" "${summary_file}.tmp2" 2>/dev/null || true
+                    
+                    # 使用perl在body标签后插入摘要（更可靠的方法，兼容Windows和Linux）
+                    if command -v perl >/dev/null 2>&1; then
+                        perl -pe '
+                            BEGIN {
+                                open(SUMMARY, "<", "'"${summary_file}"'") or die "Cannot open summary file";
+                                $summary = do { local $/; <SUMMARY> };
+                                close(SUMMARY);
+                            }
+                            if (/<body[^>]*>/) {
+                                $_ .= $summary;
+                            }
+                        ' "${html_file}" > "${html_file}.tmp"
+                    else
+                        # 如果perl不可用，使用awk（备用方案）
+                        awk -v summary_file="${summary_file}" '
+                            /<body[^>]*>/ {
+                                print
+                                while ((getline line < summary_file) > 0) {
+                                    print line
+                                }
+                                close(summary_file)
+                                next
+                            }
+                            { print }
+                        ' "${html_file}" > "${html_file}.tmp"
+                    fi
+                    
+                    mv "${html_file}.tmp" "${html_file}" 2>/dev/null || cp "${html_file}.tmp" "${html_file}"
+                    rm -f "${html_file}.tmp" "${summary_file}" 2>/dev/null || true
                 }
                 
                 enhance_html_report "handler_coverage.html" "${HANDLER_COVERAGE}" "${COVERAGE_THRESHOLD}"
