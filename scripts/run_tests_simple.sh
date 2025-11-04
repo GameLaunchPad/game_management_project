@@ -100,6 +100,25 @@ echo "----------------------------------------"
 
 cd "${SERVICE_PATH}"
 
+# 检查是否在正确的目录（应该有go.mod文件）
+if [ ! -f "go.mod" ]; then
+    echo -e "${RED}错误: 未找到 go.mod 文件${NC}"
+    echo "当前工作目录: $(pwd)"
+    echo "期望的目录: ${SERVICE_PATH}"
+    echo "请确保在正确的模块目录下运行"
+    exit 1
+fi
+
+# 验证Go模块配置
+echo "验证Go模块配置..."
+if ! go mod verify >/dev/null 2>&1; then
+    echo -e "${YELLOW}警告: go mod verify 失败，但继续执行${NC}"
+fi
+
+# 确保依赖已下载
+echo "确保依赖已下载..."
+go mod download >/dev/null 2>&1 || echo -e "${YELLOW}警告: go mod download 失败${NC}"
+
 # 只测试 handler 目录
 HANDLER_DIR="./handler"
 
@@ -107,6 +126,16 @@ HANDLER_DIR="./handler"
 if [ ! -d "${HANDLER_DIR}" ]; then
     echo -e "${RED}错误: handler 目录不存在${NC}"
     exit 1
+fi
+
+# 获取handler包的完整路径（使用go list）
+echo "获取handler包路径..."
+HANDLER_PKG=$(go list ./handler 2>/dev/null || echo "")
+if [ -z "$HANDLER_PKG" ]; then
+    echo -e "${YELLOW}警告: 无法获取handler包路径，使用相对路径${NC}"
+    HANDLER_PKG="./handler"
+else
+    echo "Handler包路径: ${HANDLER_PKG}"
 fi
 
 echo "测试范围: ${HANDLER_DIR}"
@@ -126,20 +155,71 @@ echo ""
 JSONL_REPORT="${SERVICE_PATH}/test_report.jsonl"
 
 # 运行 handler 目录下的单元测试（排除集成测试 *_it_test.go）
-# -coverpkg=./handler 只统计 handler 目录下代码的覆盖率（不包括测试文件）
+# -coverpkg 使用完整包路径，确保Go能正确找到模块
 # -json 参数会输出 JSONL 格式的测试报告（每行一个 JSON 对象）
 # 注意：go test 会自动排除 *_test.go 文件在覆盖率统计中
 # 注意：-json 会将测试输出重定向到 JSONL 格式，但覆盖率信息会单独输出到文件
 
+# 验证当前目录和模块
+echo "当前工作目录: $(pwd)"
+echo "Go模块信息:"
+MODULE_PATH=$(go list -m 2>/dev/null || echo "")
+if [ -n "$MODULE_PATH" ]; then
+    echo "  - 模块路径: ${MODULE_PATH}"
+else
+    echo -e "${YELLOW}  - 警告: 无法获取Go模块路径${NC}"
+fi
+
+# 验证handler包是否存在
+echo "验证handler包..."
+if go list ./handler >/dev/null 2>&1; then
+    HANDLER_PKG=$(go list ./handler)
+    echo "  - Handler包路径: ${HANDLER_PKG}"
+else
+    echo -e "${RED}  - 错误: 无法列出handler包${NC}"
+    echo "尝试运行: go list ./..."
+    go list ./... 2>&1 | head -5
+    exit 1
+fi
+
 # 运行测试并生成 JSONL 报告
 # -json 参数会输出 JSONL 格式（每行一个 JSON 对象）
-# 同时我们需要在控制台显示一些基本信息
+# 先尝试使用 -coverpkg 参数，如果失败则重试不使用该参数
+
+# 尝试使用 -coverpkg 参数（使用相对路径）
+COVERPKG_USED=false
 if go test -short -race -coverprofile=coverage.out \
     -coverpkg=./handler \
     -run "^Test.*" \
     -timeout 5m \
     -json \
     ./handler > "${JSONL_REPORT}" 2>&1; then
+    COVERPKG_USED=true
+    echo -e "${GREEN}✓ 使用 -coverpkg 参数成功${NC}"
+else
+    # 如果使用 -coverpkg 失败，尝试不使用该参数
+    echo -e "${YELLOW}警告: 使用 -coverpkg 参数失败，错误信息：${NC}"
+    tail -5 "${JSONL_REPORT}" 2>/dev/null || true
+    echo ""
+    echo -e "${YELLOW}尝试不使用 -coverpkg 参数...${NC}"
+    
+    if go test -short -race -coverprofile=coverage.out \
+        -run "^Test.*" \
+        -timeout 5m \
+        -json \
+        ./handler > "${JSONL_REPORT}" 2>&1; then
+        COVERPKG_USED=false
+        echo -e "${YELLOW}注意: 覆盖率统计将包含所有包，报告会过滤为仅handler目录${NC}"
+    else
+        echo -e "${RED}错误: 单元测试失败${NC}"
+        echo "测试输出:"
+        tail -20 "${JSONL_REPORT}" 2>/dev/null || true
+        exit 1
+    fi
+fi
+
+# 测试成功，继续处理
+if true; then
     
     # 检查测试是否真的成功（通过 JSONL 文件中的状态判断）
     TEST_EXIT_CODE=0
@@ -198,7 +278,12 @@ if go test -short -race -coverprofile=coverage.out \
         echo "----------------------------------------"
         
         # 使用 grep 过滤，只显示 handler 目录的覆盖率
-        go tool cover -func=coverage.out | grep -E "(handler/|total)" | grep -v "_test.go"
+        # 如果未使用coverpkg，这里会过滤掉其他包的覆盖率
+        go tool cover -func=coverage.out | grep -E "(handler/|total)" | grep -v "_test.go" || {
+            # 如果grep失败，显示所有覆盖率
+            echo -e "${YELLOW}警告: 无法过滤handler目录，显示所有覆盖率${NC}"
+            go tool cover -func=coverage.out | tail -5
+        }
         
         echo ""
         echo "----------------------------------------"
