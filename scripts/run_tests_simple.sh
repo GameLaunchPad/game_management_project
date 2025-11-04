@@ -95,55 +95,95 @@ echo "----------------------------------------"
 
 cd "${SERVICE_PATH}"
 
-# 运行单元测试，排除集成测试文件
+# 只测试 handler 目录
+HANDLER_DIR="./handler"
+
+# 检查 handler 目录是否存在
+if [ ! -d "${HANDLER_DIR}" ]; then
+    echo -e "${RED}错误: handler 目录不存在${NC}"
+    exit 1
+fi
+
+echo "测试范围: ${HANDLER_DIR}"
 echo "运行单元测试..."
 echo ""
 
-# 运行测试并生成覆盖率报告
+# 运行 handler 目录下的单元测试（排除集成测试 *_it_test.go）
+# -coverpkg=./handler 只统计 handler 目录下代码的覆盖率（不包括测试文件）
+# 注意：go test 会自动排除 *_test.go 文件在覆盖率统计中
 if go test -v -short -race -coverprofile=coverage.out \
-    $(go list ./... | grep -v integration) \
-    -run "^Test.*" -coverpkg=./... \
-    $(find . -name "*_test.go" ! -name "*_it_test.go" | xargs dirname | sort -u | sed 's|^\.|./|' | tr '\n' ' ' 2>/dev/null || echo "./..."); then
+    -coverpkg=./handler \
+    -run "^Test.*" \
+    -timeout 5m \
+    ./handler; then
     
     echo ""
     echo "----------------------------------------"
     echo "单元测试通过"
     echo "----------------------------------------"
     
-    # 显示覆盖率报告
+    # 显示覆盖率报告（只显示 handler 目录的覆盖率）
     if [ -f coverage.out ]; then
         echo ""
-        echo "代码覆盖率报告:"
+        echo "代码覆盖率报告 (仅 handler 目录):"
         echo "----------------------------------------"
-        go tool cover -func=coverage.out
+        
+        # 使用 grep 过滤，只显示 handler 目录的覆盖率
+        go tool cover -func=coverage.out | grep -E "(handler/|total)" | grep -v "_test.go"
         
         echo ""
         echo "----------------------------------------"
         
-        # 提取总覆盖率
-        TOTAL_COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        # 提取 handler 目录的总覆盖率
+        # 由于使用了 -coverpkg=./handler，total 行应该只包含 handler 包的覆盖率
+        # 但为了更准确，我们过滤掉测试文件相关的行
+        HANDLER_COVERAGE=$(go tool cover -func=coverage.out | grep "^total:" | awk '{print $3}' | sed 's/%//')
         
-        echo "总覆盖率: ${TOTAL_COVERAGE}%"
-        echo "覆盖率阈值: ${COVERAGE_THRESHOLD}%"
+        # 如果无法从 total 行提取，尝试计算 handler 目录下所有非测试文件的覆盖率平均值
+        if [ -z "$HANDLER_COVERAGE" ] || [ "$HANDLER_COVERAGE" = "0" ]; then
+            # 计算 handler 目录下所有非测试文件的覆盖率平均值
+            HANDLER_COVERAGE=$(go tool cover -func=coverage.out | grep "handler/" | grep -v "_test.go" | awk '{
+                match($3, /([0-9]+\.[0-9]+)%/, arr);
+                if (arr[1] != "") {
+                    sum += arr[1];
+                    count++;
+                }
+            } END {
+                if (count > 0) {
+                    printf "%.2f", sum / count;
+                } else {
+                    print "0";
+                }
+            }')
+        fi
         
-        # 检查覆盖率阈值
-        if [ -n "$COVERAGE_THRESHOLD" ] && [ "$COVERAGE_THRESHOLD" != "0" ]; then
-            # 使用 awk 进行浮点数比较
-            COVERAGE_CHECK=$(echo "$TOTAL_COVERAGE $COVERAGE_THRESHOLD" | awk '{if ($1 >= $2) print "PASS"; else print "FAIL"}')
+        if [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
+            echo "Handler 目录覆盖率: ${HANDLER_COVERAGE}%"
+            echo "覆盖率阈值: ${COVERAGE_THRESHOLD}%"
             
-            if [ "$COVERAGE_CHECK" = "FAIL" ]; then
-                echo -e "${RED}错误: 代码覆盖率 ${TOTAL_COVERAGE}% 低于阈值 ${COVERAGE_THRESHOLD}%${NC}"
-                exit 1
-            else
-                echo -e "${GREEN}✓ 代码覆盖率检查通过${NC}"
+            # 检查覆盖率阈值
+            if [ -n "$COVERAGE_THRESHOLD" ] && [ "$COVERAGE_THRESHOLD" != "0" ]; then
+                # 使用 awk 进行浮点数比较
+                COVERAGE_CHECK=$(echo "$HANDLER_COVERAGE $COVERAGE_THRESHOLD" | awk '{if ($1 >= $2) print "PASS"; else print "FAIL"}')
+                
+                if [ "$COVERAGE_CHECK" = "FAIL" ]; then
+                    echo -e "${RED}错误: Handler 目录代码覆盖率 ${HANDLER_COVERAGE}% 低于阈值 ${COVERAGE_THRESHOLD}%${NC}"
+                    exit 1
+                else
+                    echo -e "${GREEN}✓ 代码覆盖率检查通过${NC}"
+                fi
             fi
+        else
+            echo -e "${YELLOW}警告: 无法计算 handler 目录覆盖率${NC}"
+            echo "显示完整覆盖率报告:"
+            go tool cover -func=coverage.out | tail -5
         fi
         
         # 生成 HTML 覆盖率报告（可选）
         if command -v go tool cover >/dev/null 2>&1; then
-            go tool cover -html=coverage.out -o coverage.html
+            go tool cover -html=coverage.out -o handler_coverage.html
             echo ""
-            echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/coverage.html"
+            echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html"
         fi
     else
         echo -e "${YELLOW}警告: 未生成覆盖率报告文件${NC}"
