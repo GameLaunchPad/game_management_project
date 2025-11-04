@@ -380,8 +380,51 @@ if true; then
         # 生成 HTML 覆盖率报告（可选）
         if command -v go tool cover >/dev/null 2>&1; then
             go tool cover -html=coverage.out -o handler_coverage.html
-            echo ""
-            echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html"
+            
+            # 在HTML报告中添加总覆盖率信息
+            if [ -f handler_coverage.html ] && [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
+                # 创建增强版的HTML报告，在顶部添加总覆盖率信息
+                enhance_html_report() {
+                    local html_file="$1"
+                    local coverage="$2"
+                    local threshold="$3"
+                    
+                    # 读取原始HTML
+                    local html_content=$(cat "$html_file")
+                    
+                    # 在HTML头部添加覆盖率摘要
+                    local summary_html="
+<div style=\"background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #4CAF50;\">
+    <h2 style=\"margin: 0 0 10px 0; color: #333;\">测试覆盖率摘要</h2>
+    <div style=\"display: flex; gap: 30px; flex-wrap: wrap;\">
+        <div>
+            <strong style=\"color: #666;\">Handler目录覆盖率:</strong>
+            <span style=\"font-size: 24px; font-weight: bold; color: #4CAF50; margin-left: 10px;\">${coverage}%</span>
+        </div>
+        <div>
+            <strong style=\"color: #666;\">覆盖率目标:</strong>
+            <span style=\"font-size: 18px; color: #333; margin-left: 10px;\">${threshold}%</span>
+        </div>
+        <div>
+            <strong style=\"color: #666;\">生成时间:</strong>
+            <span style=\"color: #333; margin-left: 10px;\">$(date '+%Y-%m-%d %H:%M:%S')</span>
+        </div>
+    </div>
+</div>
+"
+                    
+                    # 将摘要插入到body标签后
+                    echo "$html_content" | sed "s|<body>|<body>${summary_html}|" > "${html_file}.tmp"
+                    mv "${html_file}.tmp" "${html_file}"
+                }
+                
+                enhance_html_report "handler_coverage.html" "${HANDLER_COVERAGE}" "${COVERAGE_THRESHOLD}"
+                echo ""
+                echo "HTML 覆盖率报告已生成（已添加总覆盖率信息）: ${SERVICE_PATH}/handler_coverage.html"
+            else
+                echo ""
+                echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html"
+            fi
         fi
         
         # 生成云效可解析的覆盖率报告（JSON格式）
