@@ -81,6 +81,7 @@ COVERAGE_THRESHOLD=50 bash scripts/run_tests_simple.sh
 5. **阈值检查**: 如果设置了阈值，会检查覆盖率是否达到要求
 6. **HTML 报告**: 自动生成 `game/handler_coverage.html` 可视化报告
 7. **JSONL 报告**: 自动生成 `game/test_report.jsonl` 测试报告（用于云效测试报告）
+8. **覆盖率JSON报告**: 自动生成 `game/coverage_report.json` 覆盖率报告（用于云效显示覆盖率）
 
 ## JSONL 测试报告
 
@@ -95,11 +96,49 @@ COVERAGE_THRESHOLD=50 bash scripts/run_tests_simple.sh
 1. 在云效流水线的测试步骤中，将 `game/test_report.jsonl` 指定为测试报告文件
 2. 云效会自动解析 JSONL 文件，显示测试结果
 3. 可以在云效的测试报告页面查看详细的测试结果
+4. JSONL 文件中已包含覆盖率信息（Action="coverage" 的行）
 
 **示例 JSONL 格式**：
 ```json
 {"Time":"2025-01-01T10:00:00Z","Action":"run","Package":"github.com/.../game/handler","Test":"TestCreateGameDetail_Success"}
 {"Time":"2025-01-01T10:00:01Z","Action":"pass","Package":"github.com/.../game/handler","Test":"TestCreateGameDetail_Success"}
+{"Time":"2025-01-01T10:00:02Z","Action":"coverage","Package":"github.com/.../game/handler","Coverage":85.5,"Threshold":50}
+```
+
+## 覆盖率报告
+
+脚本会自动生成两种格式的覆盖率报告：
+
+### 1. JSONL 格式（已包含在测试报告中）
+- 覆盖率信息会自动添加到 `game/test_report.jsonl` 文件中
+- 格式：`{"Action":"coverage","Coverage":85.5,"Threshold":50}`
+- 云效可以直接从测试报告中读取覆盖率信息
+
+### 2. JSON 格式（单独文件）
+- 文件位置：`game/coverage_report.json`
+- 包含详细的覆盖率信息：
+  - 总覆盖率
+  - 覆盖率阈值
+  - 每个函数的覆盖率
+  - 时间戳
+
+**在云效中使用覆盖率报告**：
+1. **从JSONL测试报告中读取**：云效会自动解析JSONL文件中的覆盖率信息
+2. **从JSON文件中读取**：在云效流水线配置中，可以指定 `game/coverage_report.json` 作为覆盖率报告文件
+3. **查看HTML报告**：下载 `game/handler_coverage.html` 查看可视化的覆盖率报告
+
+**示例覆盖率JSON格式**：
+```json
+{
+  "total_coverage": 85.5,
+  "coverage_threshold": 50,
+  "package": "game/handler",
+  "timestamp": "2025-01-01T10:00:00Z",
+  "functions": [
+    {"function": "CreateGameDetail", "coverage": 90.0},
+    {"function": "GetGameDetail", "coverage": 85.5}
+  ]
+}
 ```
 
 ## 注意事项
@@ -109,6 +148,10 @@ COVERAGE_THRESHOLD=50 bash scripts/run_tests_simple.sh
 3. 只运行单元测试，不运行集成测试（`*_it_test.go` 文件会被排除）
 4. 覆盖率统计只包括 handler 目录下的非测试代码（`*.go` 文件，不包括 `*_test.go`）
 5. 覆盖率阈值设置为 0 时，不进行阈值检查
-6. 覆盖率报告文件会生成在 `game/coverage.out` 和 `game/handler_coverage.html`
+6. 覆盖率报告文件会生成在：
+   - `game/coverage.out` - 覆盖率数据文件
+   - `game/handler_coverage.html` - HTML可视化报告
+   - `game/coverage_report.json` - JSON格式覆盖率报告（用于云效）
 7. JSONL 测试报告文件会生成在 `game/test_report.jsonl`，可用于云效测试报告
+8. 覆盖率信息会自动添加到JSONL测试报告中，云效可以直接读取
 

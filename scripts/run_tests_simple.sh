@@ -240,6 +240,75 @@ if go test -short -race -coverprofile=coverage.out \
             echo ""
             echo "HTML 覆盖率报告已生成: ${SERVICE_PATH}/handler_coverage.html"
         fi
+        
+        # 生成云效可解析的覆盖率报告（JSON格式）
+        generate_coverage_json() {
+            local coverage_file="$1"
+            local json_file="${SERVICE_PATH}/coverage_report.json"
+            
+            # 提取覆盖率数据
+            local total_coverage="$HANDLER_COVERAGE"
+            local coverage_data=$(go tool cover -func="$coverage_file" | grep "handler/" | grep -v "_test.go")
+            
+            # 计算各个函数的覆盖率
+            local function_array=""
+            local first=true
+            while IFS= read -r line; do
+                if [ -n "$line" ] && echo "$line" | grep -q "handler/"; then
+                    local func_full=$(echo "$line" | awk '{print $1}')
+                    local func_name=$(echo "$func_full" | sed 's/.*\///')
+                    local func_coverage=$(echo "$line" | awk '{print $3}' | sed 's/%//')
+                    
+                    if [ -z "$func_coverage" ] || [ "$func_coverage" = "0" ]; then
+                        continue
+                    fi
+                    
+                    if [ "$first" = true ]; then
+                        first=false
+                    else
+                        function_array="${function_array},"
+                    fi
+                    
+                    # 转义函数名中的特殊字符
+                    func_name=$(echo "$func_name" | sed 's/"/\\"/g')
+                    function_array="${function_array}{\"function\":\"${func_name}\",\"coverage\":${func_coverage}}"
+                fi
+            done <<< "$coverage_data"
+            
+            # 生成JSON报告
+            cat > "$json_file" <<EOF
+{
+  "total_coverage": ${total_coverage:-0},
+  "coverage_threshold": ${COVERAGE_THRESHOLD:-0},
+  "package": "game/handler",
+  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%SZ")",
+  "functions": [${function_array}]
+}
+EOF
+            
+            echo "覆盖率JSON报告已生成: ${json_file}"
+        }
+        
+        # 将覆盖率信息添加到JSONL测试报告中（作为测试摘要）
+        append_coverage_to_jsonl() {
+            local jsonl_file="${JSONL_REPORT}"
+            local total_coverage="$HANDLER_COVERAGE"
+            
+            if [ -f "$jsonl_file" ] && [ -n "$total_coverage" ] && [ "$total_coverage" != "0" ]; then
+                # 在JSONL文件末尾添加覆盖率摘要信息
+                cat >> "$jsonl_file" <<EOF
+{"Time":"$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%SZ")","Action":"coverage","Package":"github.com/GameLaunchPad/game_management_project/game/handler","Coverage":${total_coverage},"Threshold":${COVERAGE_THRESHOLD:-0}}
+EOF
+                echo "覆盖率信息已添加到JSONL测试报告"
+            fi
+        }
+        
+        # 生成覆盖率JSON报告
+        if [ -f coverage.out ] && [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
+            generate_coverage_json coverage.out
+            # 同时将覆盖率信息添加到JSONL报告中
+            append_coverage_to_jsonl
+        fi
     else
         echo -e "${YELLOW}警告: 未生成覆盖率报告文件${NC}"
     fi
