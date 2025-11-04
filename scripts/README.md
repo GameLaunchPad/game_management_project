@@ -147,7 +147,7 @@ COVERAGE_THRESHOLD=50 bash scripts/run_tests_simple.sh
 2. 脚本只测试 `game/handler` 目录，不测试其他目录（dao, dal, service 等）
 3. 只运行单元测试，不运行集成测试（`*_it_test.go` 文件会被排除）
 4. 覆盖率统计只包括 handler 目录下的非测试代码（`*.go` 文件，不包括 `*_test.go`）
-5. 覆盖率阈值设置为 0 时，不进行阈值检查
+5. 覆盖率阈值默认设置为 95%，可通过环境变量 `COVERAGE_THRESHOLD` 调整
 6. 覆盖率报告文件会生成在：
    - `game/coverage.out` - 覆盖率数据文件
    - `game/handler_coverage.html` - HTML可视化报告
