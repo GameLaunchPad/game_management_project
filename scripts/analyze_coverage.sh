@@ -38,9 +38,31 @@ echo "----------------------------------------"
 go tool cover -func="$COVERAGE_FILE" | grep "handler/" | awk '$3 >= 80 {print}' | head -20
 echo ""
 
-echo "5. 总覆盖率："
+echo "5. Handler 目录覆盖率："
 echo "----------------------------------------"
-go tool cover -func="$COVERAGE_FILE" | grep "^total:"
+# 计算handler目录的平均覆盖率（不直接使用total，因为可能包含其他包）
+HANDLER_COV=$(go tool cover -func="$COVERAGE_FILE" 2>/dev/null | grep "handler/" | grep -v "_test.go" | awk '{
+    if (match($3, /([0-9]+\.[0-9]+)%/, arr)) {
+        sum += arr[1];
+        count++;
+    } else if (match($3, /([0-9]+)%/, arr)) {
+        sum += arr[1];
+        count++;
+    }
+} END {
+    if (count > 0) {
+        printf "%.2f%%", sum / count;
+    } else {
+        print "0%";
+    }
+}' || echo "无法计算")
+
+echo "Handler 目录平均覆盖率: ${HANDLER_COV}"
+
+echo ""
+echo "6. 总覆盖率（所有包）："
+echo "----------------------------------------"
+go tool cover -func="$COVERAGE_FILE" 2>/dev/null | grep "^total:" || echo "  无法获取"
 echo ""
 
 echo "建议："

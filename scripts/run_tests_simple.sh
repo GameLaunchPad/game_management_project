@@ -289,16 +289,31 @@ if true; then
         echo "----------------------------------------"
         
         # 提取 handler 目录的总覆盖率
-        # 由于使用了 -coverpkg=./handler，total 行应该只包含 handler 包的覆盖率
-        # 但为了更准确，我们过滤掉测试文件相关的行
-        HANDLER_COVERAGE=$(go tool cover -func=coverage.out | grep "^total:" | awk '{print $3}' | sed 's/%//')
+        # 注意：如果未使用 -coverpkg，total 行会包含所有包的覆盖率，不能直接使用
+        # 所以始终从 handler/ 开头的行计算平均值
         
-        # 如果无法从 total 行提取，尝试计算 handler 目录下所有非测试文件的覆盖率平均值
-        if [ -z "$HANDLER_COVERAGE" ] || [ "$HANDLER_COVERAGE" = "0" ]; then
+        HANDLER_COVERAGE=""
+        
+        # 方法1：如果使用了 -coverpkg，可以直接从 total 行提取
+        if [ "$COVERPKG_USED" = "true" ]; then
+            # 尝试从 total 行提取（应该只包含 handler 包的覆盖率）
+            TOTAL_LINE=$(go tool cover -func=coverage.out 2>/dev/null | grep "^total:" || echo "")
+            if [ -n "$TOTAL_LINE" ]; then
+                # 验证是否只包含 handler（简单检查：如果total行存在且不为空）
+                HANDLER_COVERAGE=$(echo "$TOTAL_LINE" | awk '{print $3}' | sed 's/%//' || echo "")
+            fi
+        fi
+        
+        # 方法2：从 handler/ 开头的行计算平均值（更可靠的方法）
+        if [ -z "$HANDLER_COVERAGE" ] || [ "$HANDLER_COVERAGE" = "0" ] || [ -z "$HANDLER_COVERAGE" ]; then
             # 计算 handler 目录下所有非测试文件的覆盖率平均值
-            HANDLER_COVERAGE=$(go tool cover -func=coverage.out | grep "handler/" | grep -v "_test.go" | awk '{
-                match($3, /([0-9]+\.[0-9]+)%/, arr);
-                if (arr[1] != "") {
+            HANDLER_COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | grep "handler/" | grep -v "_test.go" | awk '{
+                # 提取覆盖率百分比（第3列）
+                # 匹配格式：XX.X% 或 XX%
+                if (match($3, /([0-9]+\.[0-9]+)%/, arr)) {
+                    sum += arr[1];
+                    count++;
+                } else if (match($3, /([0-9]+)%/, arr)) {
                     sum += arr[1];
                     count++;
                 }
@@ -308,7 +323,26 @@ if true; then
                 } else {
                     print "0";
                 }
-            }')
+            }' || echo "0")
+        fi
+        
+        # 方法3：如果还是无法获取，尝试从所有handler相关的行计算
+        if [ -z "$HANDLER_COVERAGE" ] || [ "$HANDLER_COVERAGE" = "0" ]; then
+            HANDLER_COVERAGE=$(go tool cover -func=coverage.out 2>/dev/null | awk '
+                /handler\// && !/_test\.go/ {
+                    if (match($3, /([0-9]+\.?[0-9]*)%/, arr)) {
+                        sum += arr[1];
+                        count++;
+                    }
+                }
+                END {
+                    if (count > 0) {
+                        printf "%.2f", sum / count;
+                    } else {
+                        print "0";
+                    }
+                }
+            ' || echo "0")
         fi
         
         if [ -n "$HANDLER_COVERAGE" ] && [ "$HANDLER_COVERAGE" != "0" ]; then
@@ -357,7 +391,13 @@ if true; then
             
             # 提取覆盖率数据
             local total_coverage="$HANDLER_COVERAGE"
-            local coverage_data=$(go tool cover -func="$coverage_file" | grep "handler/" | grep -v "_test.go")
+            # 确保coverage_file存在且可读
+            if [ ! -f "$coverage_file" ]; then
+                echo -e "${YELLOW}警告: 覆盖率文件不存在: ${coverage_file}${NC}"
+                return 1
+            fi
+            
+            local coverage_data=$(go tool cover -func="$coverage_file" 2>/dev/null | grep "handler/" | grep -v "_test.go" || echo "")
             
             # 计算各个函数的覆盖率
             local function_array=""
