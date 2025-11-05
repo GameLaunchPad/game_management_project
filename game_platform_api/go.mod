@@ -9,7 +9,7 @@ require (
 	github.com/GameLaunchPad/game_management_project/game v0.0.0
 	github.com/apache/thrift v0.0.0-00010101000000-000000000000
 	github.com/cloudwego/hertz v0.10.2
-	github.com/cloudwego/kitex v0.15.1
+	github.com/cloudwego/kitex v0.15.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -20,11 +20,11 @@ replace github.com/GameLaunchPad/game_management_project/cp_center => ../cp_cent
 require (
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic v1.14.1 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
+	github.com/bytedance/sonic v1.14.2 // indirect
+	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/configmanager v0.2.3 // indirect
-	github.com/cloudwego/dynamicgo v0.7.0 // indirect
+	github.com/cloudwego/dynamicgo v0.7.1 // indirect
 	github.com/cloudwego/fastpb v0.0.5 // indirect
 	github.com/cloudwego/frugal v0.3.0 // indirect
 	github.com/cloudwego/gopkg v0.1.6 // indirect
@@ -55,7 +55,7 @@ require (
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251014184007-4626949a642f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.75.1 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )
