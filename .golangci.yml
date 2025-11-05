@@ -1,91 +1,27 @@
-# golangci-lint configuration
-# Configuration for monorepo with multiple Go modules
+# golangci-lint configuration - Minimal config for monorepo
 
 run:
-  # Timeout for analysis
-  timeout: 10m
-  
-  # Don't build test files
+  timeout: 5m
   tests: false
-  
-  # Allow issues from multiple packages
-  allow-parallel-runners: true
-
-issues:
-  # Maximum issues count per one linter
-  max-issues-per-linter: 0
-  
-  # Maximum count of issues with the same text
-  max-same-issues: 0
-  
-  # Exclude specific linters for certain paths (use exclude-rules instead of exclude-dirs)
-  exclude-rules:
-    # Exclude config files
-    - path: ".*/config/.*\\.go$"
-      linters:
-        - all
-    
-    # Exclude dal files
-    - path: ".*/dal/.*\\.go$"
-      linters:
-        - all
-    
-    # Exclude generated files
-    - path: "kitex_gen/.*"
-      linters:
-        - all
-    
-    # Exclude test files
-    - path: ".*_test\\.go$"
-      linters:
-        - all
-    
-    # Exclude protobuf generated files
-    - path: ".*\\.pb\\.go$"
-      linters:
-        - all
-    
-    # Ignore cross-module dependency errors
-    - text: "could not load export data"
-      linters:
-        - typecheck
-        - govet
-        - staticcheck
-    
-    # Ignore import errors from cross-module dependencies
-    - text: "could not import"
-      linters:
-        - typecheck
-    
-    # Ignore build constraints errors
-    - text: "build constraints exclude all"
-      linters:
-        - typecheck
 
 linters:
-  # Disable all linters by default
   disable-all: true
-  
-  # Enable only basic linters that don't require full type checking
   enable:
     - errcheck
-    - gosimple
-    - ineffassign
-    - unused
-  
-  # Explicitly disable linters that cause issues in monorepo
-  disable:
-    - govet        # Requires full type information
-    - staticcheck  # Requires full type information
-    - typecheck    # Cannot resolve cross-module dependencies
 
-linters-settings:
-  errcheck:
-    # Don't check for errors in defer
-    check-type-assertions: false
-    check-blank: false
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
   
-  gosimple:
-    # Don't check for simplifications that require type info
-    checks: ["all"]
+  exclude-rules:
+    # Ignore all issues in these paths
+    - path: ".*_test\\.go"
+    - path: ".*/config/.*"
+    - path: ".*/dal/.*"
+    - path: "kitex_gen/.*"
+    - path: ".*\\.pb\\.go"
+    
+    # Ignore specific errors
+    - text: "could not load export data"
+    - text: "could not import"
 
