@@ -2,7 +2,8 @@
 # Simple golangci-lint script for monorepo structure
 # Only scans handler directories to avoid cross-module dependency issues
 
-set -e
+# Don't exit on error immediately - we want to collect all results
+set +e
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,15 +17,47 @@ echo "Running golangci-lint for Monorepo"
 echo "=========================================="
 echo ""
 
+# Debug: Show environment
+echo "Debug Info:"
+echo "  PWD: $(pwd)"
+echo "  SHELL: $SHELL"
+echo "  PATH: $PATH"
+echo ""
+
 # Get project root directory
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "${PROJECT_ROOT}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+echo "Project Root: ${PROJECT_ROOT}"
+cd "${PROJECT_ROOT}" || exit 1
+echo ""
 
 # Check if golangci-lint is installed
+echo "Checking golangci-lint..."
 if ! command -v golangci-lint &> /dev/null; then
     echo -e "${RED}✗ golangci-lint not found${NC}"
-    echo "Please install golangci-lint: https://golangci-lint.run/usage/install/"
-    exit 1
+    echo ""
+    echo "Attempting to install golangci-lint..."
+    
+    # Try to install golangci-lint
+    if command -v go &> /dev/null; then
+        echo "Installing via go install..."
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        
+        # Add GOPATH/bin to PATH if not already there
+        export PATH="$PATH:$(go env GOPATH)/bin"
+        
+        # Check again
+        if command -v golangci-lint &> /dev/null; then
+            echo -e "${GREEN}✓ golangci-lint installed successfully${NC}"
+        else
+            echo -e "${RED}✗ Failed to install golangci-lint${NC}"
+            echo "Please install manually: https://golangci-lint.run/usage/install/"
+            exit 1
+        fi
+    else
+        echo -e "${RED}✗ Go not found, cannot auto-install golangci-lint${NC}"
+        exit 1
+    fi
 fi
 
 echo -e "${BLUE}golangci-lint version:${NC}"
@@ -61,37 +94,39 @@ for service in "${!SERVICES[@]}"; do
     
     # Run golangci-lint with minimal linters
     # Only check: errcheck (error handling)
-    if golangci-lint run \
+    echo "Running: golangci-lint run --disable-all --enable=errcheck --timeout=5m --tests=false ./$dirs/..."
+    
+    # Create temp file
+    TEMP_LOG="${PROJECT_ROOT}/golangci_${service}.log"
+    
+    golangci-lint run \
         --disable-all \
         --enable=errcheck \
         --timeout=5m \
         --tests=false \
         --exclude-dirs-use-default \
-        ./$dirs/... 2>&1 | tee /tmp/golangci_${service}.log; then
-        
-        # Check if there were any issues
-        ISSUES=$(grep -c "Error:" /tmp/golangci_${service}.log || echo "0")
-        
-        if [ "$ISSUES" -eq 0 ]; then
-            echo -e "${GREEN}✓ $service passed (no issues found)${NC}"
-        else
-            echo -e "${YELLOW}⚠ $service has $ISSUES issues (non-blocking)${NC}"
-            TOTAL_ISSUES=$((TOTAL_ISSUES + ISSUES))
-        fi
+        ./$dirs/... 2>&1 | tee "${TEMP_LOG}"
+    
+    EXIT_CODE=${PIPESTATUS[0]}
+    
+    if [ $EXIT_CODE -eq 0 ]; then
+        # No issues found
+        echo -e "${GREEN}✓ $service passed (no issues found)${NC}"
+    elif [ $EXIT_CODE -eq 1 ]; then
+        # Exit code 1 usually means issues were found (non-fatal)
+        ISSUES=$(grep -c "Error:" "${TEMP_LOG}" 2>/dev/null || echo "0")
+        echo -e "${YELLOW}⚠ $service has $ISSUES issues (non-blocking)${NC}"
+        TOTAL_ISSUES=$((TOTAL_ISSUES + ISSUES))
     else
-        EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 1 ]; then
-            # Exit code 1 usually means issues were found (non-fatal)
-            echo -e "${YELLOW}⚠ $service has issues (non-blocking)${NC}"
-        else
-            # Other exit codes are actual errors
-            echo -e "${RED}✗ $service failed with exit code $EXIT_CODE${NC}"
-            FAILED_SERVICES+=("$service")
-        fi
+        # Other exit codes are actual errors
+        echo -e "${RED}✗ $service failed with exit code $EXIT_CODE${NC}"
+        echo "Last 20 lines of output:"
+        tail -20 "${TEMP_LOG}" 2>/dev/null || echo "(no log available)"
+        FAILED_SERVICES+=("$service")
     fi
     
     # Clean up
-    rm -f /tmp/golangci_${service}.log
+    rm -f "${TEMP_LOG}"
     
     # Return to project root
     cd "${PROJECT_ROOT}"
@@ -99,6 +134,7 @@ for service in "${!SERVICES[@]}"; do
 done
 
 # Summary
+echo ""
 echo "=========================================="
 echo "Scan Summary"
 echo "=========================================="
@@ -112,10 +148,14 @@ if [ ${#FAILED_SERVICES[@]} -eq 0 ]; then
     fi
     echo ""
     echo -e "${GREEN}✓ No blocker issues found!${NC}"
+    echo ""
+    echo "Exit code: 0 (Success)"
     exit 0
 else
     echo -e "${RED}✗ Failed services: ${FAILED_SERVICES[*]}${NC}"
     echo -e "${RED}  These services had actual errors (not just code quality issues)${NC}"
+    echo ""
+    echo "Exit code: 1 (Failure)"
     exit 1
 fi
 
