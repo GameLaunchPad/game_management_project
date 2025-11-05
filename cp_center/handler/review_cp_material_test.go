@@ -271,6 +271,13 @@ func TestCPMaterialHandler_ReviewCPMaterial(t *testing.T) {
 
 			// 执行被测函数
 			got, err := h.CPMaterialHandler.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
+			got, _ = h.ReviewCPMaterial(context.Background(), tt.req)
 			// 验证错误
 			tt.wantErr(t, err)
 			if err != nil {
