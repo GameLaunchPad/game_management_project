@@ -36,27 +36,51 @@ echo "Checking golangci-lint..."
 if ! command -v golangci-lint &> /dev/null; then
     echo -e "${RED}✗ golangci-lint not found${NC}"
     echo ""
-    echo "Attempting to install golangci-lint..."
+    echo "Attempting to install golangci-lint (binary version)..."
     
-    # Try to install golangci-lint
-    if command -v go &> /dev/null; then
-        echo "Installing via go install..."
-        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    # Install using official script (compatible with older Go versions)
+    # Install to /tmp which should be writable
+    INSTALL_DIR="/tmp/golangci-lint"
+    mkdir -p "${INSTALL_DIR}"
+    
+    echo "Downloading golangci-lint v1.63.4 (compatible with Go 1.20+)..."
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "${INSTALL_DIR}" v1.63.4
+    
+    # Add to PATH
+    export PATH="${INSTALL_DIR}:$PATH"
+    
+    # Check again
+    if command -v golangci-lint &> /dev/null; then
+        echo -e "${GREEN}✓ golangci-lint installed successfully${NC}"
+    else
+        echo -e "${RED}✗ Failed to install golangci-lint${NC}"
+        echo ""
+        echo "Trying alternative installation method..."
         
-        # Add GOPATH/bin to PATH if not already there
-        export PATH="$PATH:$(go env GOPATH)/bin"
+        # Fallback: Download binary directly
+        OS="linux"
+        ARCH="amd64"
+        VERSION="v1.63.4"
         
-        # Check again
+        DOWNLOAD_URL="https://github.com/golangci/golangci-lint/releases/download/${VERSION}/golangci-lint-${VERSION#v}-${OS}-${ARCH}.tar.gz"
+        
+        echo "Downloading from: ${DOWNLOAD_URL}"
+        cd "${INSTALL_DIR}"
+        curl -sSfL "${DOWNLOAD_URL}" -o golangci-lint.tar.gz
+        tar -xzf golangci-lint.tar.gz
+        mv golangci-lint-${VERSION#v}-${OS}-${ARCH}/golangci-lint ./
+        chmod +x golangci-lint
+        rm -rf golangci-lint-${VERSION#v}-${OS}-${ARCH} golangci-lint.tar.gz
+        cd "${PROJECT_ROOT}"
+        
+        # Check one more time
         if command -v golangci-lint &> /dev/null; then
-            echo -e "${GREEN}✓ golangci-lint installed successfully${NC}"
+            echo -e "${GREEN}✓ golangci-lint installed successfully (fallback method)${NC}"
         else
-            echo -e "${RED}✗ Failed to install golangci-lint${NC}"
+            echo -e "${RED}✗ All installation methods failed${NC}"
             echo "Please install manually: https://golangci-lint.run/usage/install/"
             exit 1
         fi
-    else
-        echo -e "${RED}✗ Go not found, cannot auto-install golangci-lint${NC}"
-        exit 1
     fi
 fi
 

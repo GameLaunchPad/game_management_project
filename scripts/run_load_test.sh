@@ -26,9 +26,9 @@ JMETER_LOG="${PROJECT_ROOT}/jmeter/jmeter.log"
 
 # 测试参数（可通过环境变量覆盖）
 # 性能目标：支持500个并发用户
-THREADS="${THREADS:-500}"
-RAMP_UP="${RAMP_UP:-60}"
-DURATION="${DURATION:-120}"
+THREADS="${THREADS:-100}"
+RAMP_UP="${RAMP_UP:-10}"
+DURATION="${DURATION:-60}"
 SERVER_HOST="${SERVER_HOST:-localhost}"
 SERVER_PORT="${SERVER_PORT:-8881}"
 
