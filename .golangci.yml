@@ -85,6 +85,16 @@ linters:
     - staticcheck  # Requires full type information
     - typecheck    # Cannot resolve cross-module dependencies
 
+output:
+  # Output format: colored-line-number, line-number, json, tab, checkstyle, code-climate
+  format: colored-line-number
+  
+  # Print lines of code with issue
+  print-issued-lines: true
+  
+  # Print linter name in the end of issue text
+  print-linter-name: true
+
 linters-settings:
   errcheck:
     # Don't check for errors in defer
