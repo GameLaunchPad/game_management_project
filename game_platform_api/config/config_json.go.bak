@@ -1,0 +1,46 @@
+package config
+
+import (
+	"encoding/json"
+	"os"
+)
+
+var Config struct {
+	Rpc struct {
+		GameServiceAddr     string `json:"game_service_addr" yaml:"game_service_addr"`
+		CpCenterServiceAddr string `json:"cp_center_service_addr" yaml:"cp_center_service_addr"`
+	} `json:"rpc" yaml:"rpc"`
+}
+
+// InitJSON 从 JSON 文件读取配置（备选方案，无需外部依赖）
+func InitJSON(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(data, &Config); err != nil {
+		return err
+	}
+	return nil
+}
+
+// InitYAML 从 YAML 文件读取配置（需要 gopkg.in/yaml.v3）
+// 如果 golangci-lint 报错，可以注释掉这个函数，使用 InitJSON
+/*
+func InitYAML(path string) error {
+	import "gopkg.in/yaml.v3"
+	
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if err := yaml.NewDecoder(f).Decode(&Config); err != nil {
+		return err
+	}
+	return nil
+}
+*/
+
