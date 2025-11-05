@@ -7,6 +7,9 @@ run:
   
   # Don't build test files
   tests: false
+  
+  # Allow issues from multiple packages
+  allow-parallel-runners: true
 
 issues:
   # Maximum issues count per one linter
@@ -15,46 +18,32 @@ issues:
   # Maximum count of issues with the same text
   max-same-issues: 0
   
-  # Exclude directories (replaces deprecated run.skip-dirs)
-  exclude-dirs:
-    - test
-    - vendor
-    - third_party
-    - kitex_gen
-    - dal
-    - config
-  
-  # Exclude files (replaces deprecated run.skip-files)
-  exclude-files:
-    - ".*_test\\.go$"
-    - ".*\\.pb\\.go$"
-    - ".*\\.gen\\.go$"
-    - ".*/config/.*\\.go$"
-    - ".*/dal/.*\\.go$"
-    - ".*/kitex_gen/.*\\.go$"
-  
-  # Exclude specific linters for certain paths
+  # Exclude specific linters for certain paths (use exclude-rules instead of exclude-dirs)
   exclude-rules:
     # Exclude config files
-    - path: "(^|/)config/"
+    - path: ".*/config/.*\\.go$"
       linters:
         - all
     
     # Exclude dal files
-    - path: "(^|/)dal/"
+    - path: ".*/dal/.*\\.go$"
       linters:
         - all
     
     # Exclude generated files
-    - path: "kitex_gen/"
+    - path: "kitex_gen/.*"
       linters:
         - all
     
-    # Exclude test files from certain checks
-    - path: "_test\\.go"
+    # Exclude test files
+    - path: ".*_test\\.go$"
       linters:
-        - errcheck
-        - gosec
+        - all
+    
+    # Exclude protobuf generated files
+    - path: ".*\\.pb\\.go$"
+      linters:
+        - all
     
     # Ignore cross-module dependency errors
     - text: "could not load export data"
@@ -65,6 +54,11 @@ issues:
     
     # Ignore import errors from cross-module dependencies
     - text: "could not import"
+      linters:
+        - typecheck
+    
+    # Ignore build constraints errors
+    - text: "build constraints exclude all"
       linters:
         - typecheck
 
@@ -84,16 +78,6 @@ linters:
     - govet        # Requires full type information
     - staticcheck  # Requires full type information
     - typecheck    # Cannot resolve cross-module dependencies
-
-output:
-  # Output format: colored-line-number, line-number, json, tab, checkstyle, code-climate
-  format: colored-line-number
-  
-  # Print lines of code with issue
-  print-issued-lines: true
-  
-  # Print linter name in the end of issue text
-  print-linter-name: true
 
 linters-settings:
   errcheck:
