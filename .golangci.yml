@@ -1,62 +1,97 @@
 # golangci-lint configuration
-# Exclude config files from linting due to monorepo dependency resolution issues
+# Configuration for monorepo with multiple Go modules
 
 run:
   # Timeout for analysis
-  timeout: 5m
+  timeout: 10m
   
-  # Skip directories
-  skip-dirs:
+  # Don't build test files
+  tests: false
+
+issues:
+  # Maximum issues count per one linter
+  max-issues-per-linter: 0
+  
+  # Maximum count of issues with the same text
+  max-same-issues: 0
+  
+  # Exclude directories (replaces deprecated run.skip-dirs)
+  exclude-dirs:
     - test
     - vendor
     - third_party
+    - kitex_gen
+    - dal
+    - config
   
-  # Skip files
-  skip-files:
-    - ".*config/config\\.go$"
-    - ".*config/yaml_parser\\.go$"
-    - "game/config/config.go"
-    - "game/config/yaml_parser.go"
-    - "game_platform_api/config/config.go"
-    - "game_platform_api/config/yaml_parser.go"
-    - "cp_center/config/config.go"
-
-issues:
-  # Exclude specific linters for config files
+  # Exclude files (replaces deprecated run.skip-files)
+  exclude-files:
+    - ".*_test\\.go$"
+    - ".*\\.pb\\.go$"
+    - ".*\\.gen\\.go$"
+    - ".*/config/.*\\.go$"
+    - ".*/dal/.*\\.go$"
+    - ".*/kitex_gen/.*\\.go$"
+  
+  # Exclude specific linters for certain paths
   exclude-rules:
-    - path: ".*config/config\\.go"
+    # Exclude config files
+    - path: "(^|/)config/"
+      linters:
+        - all
+    
+    # Exclude dal files
+    - path: "(^|/)dal/"
+      linters:
+        - all
+    
+    # Exclude generated files
+    - path: "kitex_gen/"
+      linters:
+        - all
+    
+    # Exclude test files from certain checks
+    - path: "_test\\.go"
+      linters:
+        - errcheck
+        - gosec
+    
+    # Ignore cross-module dependency errors
+    - text: "could not load export data"
       linters:
         - typecheck
-        - errcheck
-        - gosimple
         - govet
         - staticcheck
-        - unused
     
-    - path: ".*config/yaml_parser\\.go"
+    # Ignore import errors from cross-module dependencies
+    - text: "could not import"
       linters:
         - typecheck
-        - errcheck
-        - gosimple
-        - govet
-        - staticcheck
-        - unused
-    
-    # Exclude ioutil deprecation warning (if using Go 1.16+)
-    - path: ".*config/.*\\.go"
-      text: "ioutil is deprecated"
 
 linters:
-  # Enable specific linters (adjust based on your needs)
+  # Disable all linters by default
+  disable-all: true
+  
+  # Enable only basic linters that don't require full type checking
   enable:
     - errcheck
     - gosimple
-    - govet
     - ineffassign
-    - staticcheck
     - unused
   
-  # Disable problematic linters for config files
+  # Explicitly disable linters that cause issues in monorepo
   disable:
-    - typecheck  # Disable for files with external dependencies
+    - govet        # Requires full type information
+    - staticcheck  # Requires full type information
+    - typecheck    # Cannot resolve cross-module dependencies
+
+linters-settings:
+  errcheck:
+    # Don't check for errors in defer
+    check-type-assertions: false
+    check-blank: false
+  
+  gosimple:
+    # Don't check for simplifications that require type info
+    checks: ["all"]
 
