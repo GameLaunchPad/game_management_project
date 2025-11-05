@@ -1,10 +1,9 @@
 package config
 
-//nolint:all // golangci-lint may not find yaml dependency in monorepo structure
 import (
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3" //nolint
 )
 
 var Config struct {
@@ -21,7 +20,7 @@ func Init(path string) error {
 	}
 	defer f.Close()
 
-	if err := yaml.NewDecoder(f).Decode(&Config); err != nil {
+	if err := yaml.NewDecoder(f).Decode(&Config); err != nil { //nolint
 		return err
 	}
 	return nil

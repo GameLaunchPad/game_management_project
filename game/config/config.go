@@ -1,10 +1,9 @@
 package config
 
-//nolint:all // golangci-lint may not find yaml dependency in monorepo structure
 import (
 	"io/ioutil"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3" //nolint
 )
 
 var GlobalConfig *Config
@@ -22,7 +21,7 @@ func Init(path string) error {
 	}
 
 	var cfg Config
-	err = yaml.Unmarshal(data, &cfg)
+	err = yaml.Unmarshal(data, &cfg) //nolint
 	if err != nil {
 		return err
 	}
