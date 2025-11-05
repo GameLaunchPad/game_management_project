@@ -1,7 +1,9 @@
 package config
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -27,8 +29,8 @@ func Init(path string) error {
 		// JSON format
 		err = json.Unmarshal(data, &cfg)
 	} else {
-		// YAML format - use lazy loading to avoid linter issues
-		err = unmarshalYAML(data, &cfg)
+		// YAML format - use simple built-in parser (no external dependencies)
+		err = parseSimpleYAML(data, &cfg)
 	}
 
 	if err != nil {
@@ -39,9 +41,46 @@ func Init(path string) error {
 	return nil
 }
 
-// unmarshalYAML is a separate function to isolate yaml dependency
-// The actual implementation is in yaml_parser.go
-func unmarshalYAML(data []byte, v interface{}) error {
-	// This calls parseYAML from yaml_parser.go
-	return parseYAML(data, v)
+// parseSimpleYAML parses a simple YAML format without external dependencies
+// Supports basic key-value pairs, sufficient for config files
+func parseSimpleYAML(data []byte, cfg *Config) error {
+	scanner := bufio.NewScanner(strings.NewReader(string(data)))
+	var currentSection string
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// Check for section headers (e.g., "mysql:")
+		if strings.HasSuffix(line, ":") && !strings.Contains(line, " ") {
+			currentSection = strings.TrimSuffix(line, ":")
+			continue
+		}
+
+		// Parse key-value pairs
+		if strings.Contains(line, ":") {
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				key := strings.TrimSpace(parts[0])
+				value := strings.TrimSpace(parts[1])
+				// Remove quotes if present
+				value = strings.Trim(value, `"'`)
+
+				// Set values based on section and key
+				if currentSection == "mysql" && key == "dsn" {
+					cfg.MySQL.DSN = value
+				}
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("error reading YAML: %w", err)
+	}
+
+	return nil
 }
