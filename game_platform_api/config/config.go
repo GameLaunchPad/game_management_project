@@ -1,5 +1,6 @@
 package config
 
+//nolint:all // golangci-lint may not find yaml dependency in monorepo structure
 import (
 	"os"
 
